@@ -4,15 +4,18 @@ import { LanguageProvider } from '@/context/LanguageContext'
 import { BasketProvider } from '@/context/BasketContext'
 import Layout from '@/components/Layout'
 
+/* Customer pages — lazy loaded */
 const Home = lazy(() => import('./pages/Home'))
 const Menu = lazy(() => import('./pages/Menu'))
 const Checkout = lazy(() => import('./pages/Checkout'))
 const Login = lazy(() => import('./pages/Login'))
 const Offers = lazy(() => import('./pages/Offers'))
 const Reviews = lazy(() => import('./pages/Reviews'))
-const Dashboard = lazy(() => import('./pages/Dashboard'))
-const Operations = lazy(() => import('./pages/Operations'))
-const DataProcessor = lazy(() => import('./pages/DataProcessor'))
+
+/* Admin pages — direct import to avoid lazy-loading issues */
+import Dashboard from './pages/Dashboard'
+import Operations from './pages/Operations'
+import DataProcessor from './pages/DataProcessor'
 
 function PageLoader() {
   return (
