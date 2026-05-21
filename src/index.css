@@ -4,72 +4,201 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
+    /* Restaurant Warm Color System */
+    --ghee-gold: #D4A844;
+    --crust-dark: #2B2118;
+    --dough-cream: #FDF6EC;
+    --ember-orange: #D4652A;
+    --sage-green: #6B7F59;
+    --warm-brown: #8C5E3C;
+    --surface-cream: #F5E6D0;
+    --card-bg: rgba(255, 255, 255, 0.72);
+    --card-border: rgba(212, 168, 68, 0.25);
+    --error-red: #C0392B;
+    --success-green: #27AE60;
+    --warning-amber: #F39C12;
+
+    /* shadcn/ui theme mapped to restaurant colors */
+    --background: 40 60% 96%;
+    --foreground: 24 27% 12%;
+    --card: 40 60% 96%;
+    --card-foreground: 24 27% 12%;
+    --popover: 40 60% 96%;
+    --popover-foreground: 24 27% 12%;
+    --primary: 42 60% 55%;
+    --primary-foreground: 24 27% 12%;
+    --secondary: 33 50% 88%;
+    --secondary-foreground: 24 27% 12%;
+    --muted: 33 50% 88%;
+    --muted-foreground: 20 35% 40%;
+    --accent: 33 50% 88%;
+    --accent-foreground: 24 27% 12%;
+    --destructive: 6 60% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.625rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 33 30% 75%;
+    --input: 33 30% 75%;
+    --ring: 42 60% 55%;
+    --radius: 0.75rem;
+    --sidebar-background: 24 27% 12%;
+    --sidebar-foreground: 40 60% 96%;
+    --sidebar-primary: 42 60% 55%;
+    --sidebar-primary-foreground: 24 27% 12%;
+    --sidebar-accent: 24 27% 18%;
+    --sidebar-accent-foreground: 40 60% 96%;
+    --sidebar-border: 24 27% 20%;
+    --sidebar-ring: 42 60% 55%;
+
+    /* Easing tokens */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  html {
+    scroll-behavior: smooth;
   }
-}
 
-@layer base {
+  html[dir="rtl"] {
+    direction: rtl;
+  }
+
+  html[dir="ltr"] {
+    direction: ltr;
+  }
+
+  body {
+    font-family: "Tajawal", "Inter", system-ui, sans-serif;
+    background-color: var(--dough-cream);
+    color: var(--crust-dark);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Cairo", "Playfair Display", system-ui, sans-serif;
+  }
+
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--dough-cream);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--warm-brown);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ghee-gold);
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: rgba(212, 168, 68, 0.3);
+    color: var(--crust-dark);
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212, 168, 68, 0.25);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(43, 33, 24, 0.08);
+  }
+
+  .glass-card-dark {
+    background: rgba(43, 33, 24, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212, 168, 68, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(43, 33, 24, 0.16);
+  }
+
+  .btn-primary {
+    @apply bg-ghee-gold text-crust-dark font-bold;
+    border-radius: 12px;
+    padding: 16px 32px;
+    box-shadow: 0 4px 16px rgba(212, 168, 68, 0.3);
+    transition: all 0.25s var(--ease-out-expo);
+  }
+
+  .btn-primary:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 24px rgba(212, 168, 68, 0.5);
+    background-color: #E5B84B;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  .section-padding {
+    padding-top: clamp(80px, 10vw, 160px);
+    padding-bottom: clamp(80px, 10vw, 160px);
+  }
+
+  .container-custom {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(20px, 4vw, 64px);
+    padding-right: clamp(20px, 4vw, 64px);
+  }
+}
+
+@layer utilities {
+  .text-hero-display {
+    font-size: clamp(48px, 7vw, 96px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  .text-section-title {
+    font-size: clamp(32px, 4vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  .text-card-title {
+    font-size: clamp(22px, 2vw, 32px);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .text-body-large {
+    font-size: clamp(16px, 1.25vw, 20px);
+    font-weight: 400;
+    letter-spacing: 0.005em;
+    line-height: 1.7;
+  }
+
+  .text-body {
+    font-size: clamp(14px, 1vw, 16px);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1.7;
+  }
+
+  .text-caption {
+    font-size: clamp(11px, 0.85vw, 13px);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    line-height: 1.5;
   }
 }
