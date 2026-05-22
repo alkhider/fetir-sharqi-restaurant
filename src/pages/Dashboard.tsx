@@ -67,10 +67,7 @@ const monthlySales = [
   { month: 'May 2026', sales: 108700, orders: 1836 },
 ];
 
-const totalSalesValue = 949700;
-const totalOrdersValue = 16696;
-const avgOrderValue = 56.85;
-const adSpendValue = 45230;
+
 
 const kpiSparkline = [42, 45, 48, 52, 56, 54, 58, 62, 60, 65, 68];
 
@@ -180,6 +177,98 @@ const seasonalityData = [
 const dayLabels = ['سبت', 'جمعة', 'خميس', 'أربعاء', 'ثلاثاء', 'إثنين', 'أحد'];
 const hourLabels = ['12ص', '2ص', '4ص', '6ص', '8ص', '10ص', '12م', '2م', '4م', '6م', '8م', '10م'];
 
+/* ─────────────────────── date filtering helpers ─────────────────────── */
+
+const weeklySales = [
+  { month: 'Sun', sales: 18500, orders: 320 },
+  { month: 'Mon', sales: 16200, orders: 285 },
+  { month: 'Tue', sales: 17800, orders: 310 },
+  { month: 'Wed', sales: 22400, orders: 390 },
+  { month: 'Thu', sales: 26100, orders: 450 },
+  { month: 'Fri', sales: 19500, orders: 340 },
+  { month: 'Sat', sales: 18800, orders: 325 },
+];
+
+const dailySales = [
+  { month: '6 AM', sales: 1200, orders: 22 },
+  { month: '8 AM', sales: 2100, orders: 38 },
+  { month: '10 AM', sales: 2800, orders: 52 },
+  { month: '12 PM', sales: 4200, orders: 78 },
+  { month: '2 PM', sales: 5100, orders: 92 },
+  { month: '4 PM', sales: 6800, orders: 118 },
+  { month: '6 PM', sales: 8900, orders: 152 },
+  { month: '8 PM', sales: 10200, orders: 178 },
+  { month: '10 PM', sales: 9500, orders: 165 },
+  { month: '12 AM', sales: 6200, orders: 108 },
+];
+
+const quarterlySales = [
+  { month: 'Jul', sales: 62165, orders: 1282 },
+  { month: 'Aug', sales: 63784, orders: 1232 },
+  { month: 'Sep', sales: 51593, orders: 1027 },
+  { month: 'Oct', sales: 60301, orders: 1142 },
+  { month: 'Nov', sales: 81671, orders: 1529 },
+  { month: 'Dec', sales: 104572, orders: 1858 },
+  { month: 'Jan', sales: 141734, orders: 2337 },
+  { month: 'Feb', sales: 91576, orders: 1491 },
+  { month: 'Mar', sales: 124537, orders: 1926 },
+];
+
+function getFilteredSales(range: string) {
+  switch (range) {
+    case 'اليوم': return dailySales;
+    case 'الأسبوع': return weeklySales;
+    case 'الشهر': return monthlySales;
+    case '3 أشهر': return quarterlySales;
+    case 'سنة': return monthlySales;
+    default: return monthlySales;
+  }
+}
+
+function getFilteredAdCorrelation(range: string) {
+  const len = range === 'اليوم' ? 7 : range === 'الأسبوع' ? 14 : range === 'الشهر' ? 30 : adSalesCorrelation.length;
+  return adSalesCorrelation.slice(-len);
+}
+
+function getFilteredKPIs(range: string) {
+  switch (range) {
+    case 'اليوم':
+      return { totalSales: 4087, totalOrders: 66, avgOrder: 61.9, adSpend: 478 };
+    case 'الأسبوع':
+      return { totalSales: 28612, totalOrders: 464, avgOrder: 61.7, adSpend: 3346 };
+    case 'الشهر':
+      return { totalSales: 94970, totalOrders: 1669, avgOrder: 56.9, adSpend: 12663 };
+    case '3 أشهر':
+      return { totalSales: 284912, totalOrders: 5007, avgOrder: 56.9, adSpend: 37990 };
+    case 'سنة':
+      return { totalSales: 949700, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
+    default:
+      return { totalSales: 949700, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
+  }
+}
+
+function getSparklineForRange(range: string) {
+  switch (range) {
+    case 'اليوم': return [40, 42, 48, 55, 62, 68, 65];
+    case 'الأسبوع': return [38, 42, 45, 52, 56, 60, 65];
+    case 'الشهر': return kpiSparkline;
+    case '3 أشهر': return [35, 40, 48, 55, 62, 58, 65];
+    case 'سنة': return kpiSparkline;
+    default: return kpiSparkline;
+  }
+}
+
+function getChartSubtitle(range: string) {
+  switch (range) {
+    case 'اليوم': return 'اليوم — كل ساعتين';
+    case 'الأسبوع': return 'هذا الأسبوع — يومياً';
+    case 'الشهر': return 'May 2026';
+    case '3 أشهر': return 'Mar — May 2026';
+    case 'سنة': return 'Jul 2025 — May 2026';
+    default: return 'Jul 2025 — May 2026';
+  }
+}
+
 /* ─────────────────────── sidebar ─────────────────────── */
 
 const navItems = [
@@ -248,8 +337,12 @@ function AdminSidebar() {
 
 const dateRanges = ['اليوم', 'الأسبوع', 'الشهر', '3 أشهر', 'سنة'];
 
-function TopBar() {
-  const [activeRange, setActiveRange] = useState('الشهر');
+interface TopBarProps {
+  activeRange: string;
+  onRangeChange: (range: string) => void;
+}
+
+function TopBar({ activeRange, onRangeChange }: TopBarProps) {
   const today = 'الثلاثاء، 20 مايو 2026';
 
   return (
@@ -268,7 +361,7 @@ function TopBar() {
         {dateRanges.map((range) => (
           <button
             key={range}
-            onClick={() => setActiveRange(range)}
+            onClick={() => onRangeChange(range)}
             className={cn(
               'relative px-4 py-1.5 rounded-full text-sm font-tajawal font-semibold transition-all duration-200',
               activeRange === range
@@ -411,10 +504,10 @@ function SortIcon({ field, sortField, sortDir }: { field: string; sortField: str
 /* ─────────────────────── main dashboard ─────────────────────── */
 
 export default function Dashboard() {
-
-  /* Sort state for top items table */
+  const [activeRange, setActiveRange] = useState('الشهر');
   const [sortField, setSortField] = useState<'qty' | 'revenue'>('revenue');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
   const toggleSort = useCallback((field: 'qty' | 'revenue') => {
     setSortField((prev) => {
       if (prev === field) {
@@ -434,7 +527,12 @@ export default function Dashboard() {
     return sorted;
   }, [sortField, sortDir]);
 
-  /* date range filter state - reserved for future filtering logic */
+  // Filtered data based on selected range
+  const filteredSales = useMemo(() => getFilteredSales(activeRange), [activeRange]);
+  const filteredAdCorrelation = useMemo(() => getFilteredAdCorrelation(activeRange), [activeRange]);
+  const filteredKPIs = useMemo(() => getFilteredKPIs(activeRange), [activeRange]);
+  const filteredSparkline = useMemo(() => getSparklineForRange(activeRange), [activeRange]);
+  const chartSubtitle = useMemo(() => getChartSubtitle(activeRange), [activeRange]);
 
   return (
     <div dir="rtl" className="min-h-[100dvh] bg-dough-cream">
@@ -442,23 +540,23 @@ export default function Dashboard() {
 
       {/* Main content offset by sidebar */}
       <div className="mr-[280px] min-h-[100dvh] flex flex-col">
-        <TopBar />
+        <TopBar activeRange={activeRange} onRangeChange={setActiveRange} />
 
         {/* ─── KPI Cards Row ─── */}
         <section className="p-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
           <KPICard
             label="إجمالي المبيعات"
-            value={totalSalesValue}
+            value={filteredKPIs.totalSales}
             suffix=" ر.س"
             change={12.5}
             icon={TrendingUp}
             accent="#D4A844"
-            sparkline={kpiSparkline.map((v) => v * 1000)}
+            sparkline={filteredSparkline.map((v) => v * 1000)}
             index={0}
           />
           <KPICard
             label="عدد الطلبات"
-            value={totalOrdersValue}
+            value={filteredKPIs.totalOrders}
             change={8.3}
             icon={ShoppingCart}
             accent="#6B7F59"
@@ -466,7 +564,7 @@ export default function Dashboard() {
           />
           <KPICard
             label="متوسط قيمة الطلب"
-            value={avgOrderValue}
+            value={filteredKPIs.avgOrder}
             suffix=" ر.س"
             change={3.2}
             icon={ClipboardList}
@@ -476,7 +574,7 @@ export default function Dashboard() {
           />
           <KPICard
             label="تكلفة الإعلانات"
-            value={adSpendValue}
+            value={filteredKPIs.adSpend}
             suffix=" ر.س"
             change={-5.1}
             icon={Megaphone}
@@ -499,14 +597,14 @@ export default function Dashboard() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="font-cairo font-bold text-lg text-crust-dark">تحليل المبيعات</h3>
-                  <p className="text-warm-brown text-xs font-tajawal mt-0.5">Jul 2025 — May 2026</p>
+                  <p className="text-warm-brown text-xs font-tajawal mt-0.5">{chartSubtitle}</p>
                 </div>
                 <button className="p-2 rounded-lg text-warm-brown hover:text-ghee-gold hover:bg-ghee-gold/10 transition-colors">
                   <Download className="w-4 h-4" />
                 </button>
               </div>
               <ResponsiveContainer width="100%" height={320}>
-                <AreaChart data={monthlySales} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <AreaChart data={filteredSales} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#D4A844" stopOpacity={0.3} />
@@ -648,7 +746,7 @@ export default function Dashboard() {
             </div>
 
             <ResponsiveContainer width="100%" height={350}>
-              <ComposedChart data={adSalesCorrelation} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <ComposedChart data={filteredAdCorrelation} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(140,94,60,0.1)" />
                 <XAxis
                   dataKey="date"
