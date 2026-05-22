@@ -165,17 +165,63 @@ const channelData = [
 ];
 
 const seasonalityData = [
-  ['#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#E5B84B', '#F5E6D0', '#FDF6EC'],
-  ['#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#E5B84B', '#F5E6D0', '#FDF6EC'],
-  ['#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#F5E6D0', '#FDF6EC'],
-  ['#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#E5B84B', '#F5E6D0'],
-  ['#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#E5B84B', '#F5E6D0'],
+  ['#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#C4943A', '#C4943A', '#D4A844', '#E5B84B', '#F5E6D0', '#FDF6EC'],
+  ['#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#C4943A', '#C4943A', '#E5B84B', '#F5E6D0', '#FDF6EC'],
+  ['#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#D4A844', '#D4A844', '#C4943A', '#C4943A', '#D4A844', '#D4A844', '#F5E6D0', '#FDF6EC'],
+  ['#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#C4943A', '#C4943A', '#D4A844', '#D4A844', '#D4A844', '#E5B84B', '#F5E6D0'],
+  ['#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#D4A844', '#C4943A', '#C4943A', '#D4A844', '#E5B84B', '#F5E6D0'],
   ['#FDF6EC', '#FDF6EC', '#F5E6D0', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#E5B84B', '#F5E6D0'],
   ['#FDF6EC', '#FDF6EC', '#F5E6D0', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#E5B84B', '#F5E6D0'],
 ];
 
 const dayLabels = ['سبت', 'جمعة', 'خميس', 'أربعاء', 'ثلاثاء', 'إثنين', 'أحد'];
 const hourLabels = ['12ص', '2ص', '4ص', '6ص', '8ص', '10ص', '12م', '2م', '4م', '6م', '8م', '10م'];
+
+const daysOfWeek = [
+  { key: 'all_days', label: 'كل الأيام' },
+  { key: 'Sunday', label: 'الأحد' },
+  { key: 'Monday', label: 'الإثنين' },
+  { key: 'Tuesday', label: 'الثلاثاء' },
+  { key: 'Wednesday', label: 'الأربعاء' },
+  { key: 'Thursday', label: 'الخميس' },
+  { key: 'Friday', label: 'الجمعة' },
+  { key: 'Saturday', label: 'السبت' },
+];
+
+const monthsOfYear = [
+  { key: 'all_months', label: 'كل الشهور' },
+  { key: '2025-07', label: 'يوليو 2025' },
+  { key: '2025-08', label: 'أغسطس 2025' },
+  { key: '2025-09', label: 'سبتمبر 2025' },
+  { key: '2025-10', label: 'أكتوبر 2025' },
+  { key: '2025-11', label: 'نوفمبر 2025' },
+  { key: '2025-12', label: 'ديسمبر 2025' },
+  { key: '2026-01', label: 'يناير 2026' },
+  { key: '2026-02', label: 'فبراير 2026' },
+  { key: '2026-03', label: 'مارس 2026' },
+  { key: '2026-04', label: 'أبريل 2026' },
+  { key: '2026-05', label: 'مايو 2026' },
+];
+
+const yearsList = [
+  { key: '2025', label: '2025' },
+  { key: '2026', label: '2026' },
+];
+
+const weekDays = [
+  { key: 'all_weeks', label: 'كل الأسابيع' },
+  { key: 'week1', label: 'الأسبوع 1' },
+  { key: 'week2', label: 'الأسبوع 2' },
+  { key: 'week3', label: 'الأسبوع 3' },
+  { key: 'week4', label: 'الأسبوع 4' },
+];
+
+const periodTypes = [
+  { key: 'day', label: 'يوم' },
+  { key: 'week', label: 'أسبوع' },
+  { key: 'month', label: 'شهر' },
+  { key: 'year', label: 'سنة' },
+];
 
 /* ─────────────────────── date filtering helpers ─────────────────────── */
 
@@ -202,71 +248,75 @@ const dailySales = [
   { month: '12 AM', sales: 6200, orders: 108 },
 ];
 
-const quarterlySales = [
-  { month: 'Jul', sales: 62165, orders: 1282 },
-  { month: 'Aug', sales: 63784, orders: 1232 },
-  { month: 'Sep', sales: 51593, orders: 1027 },
-  { month: 'Oct', sales: 60301, orders: 1142 },
-  { month: 'Nov', sales: 81671, orders: 1529 },
-  { month: 'Dec', sales: 104572, orders: 1858 },
-  { month: 'Jan', sales: 141734, orders: 2337 },
-  { month: 'Feb', sales: 91576, orders: 1491 },
-  { month: 'Mar', sales: 124537, orders: 1926 },
-];
+function getFilteredData(period: string, value: string) {
+  // Filter monthlySales based on period and value
+  let filteredMonthly = [...monthlySales];
+  let subtitle = 'Jul 2025 — May 2026';
+  let kpiData = { totalSales: 949700, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
+  let spark = kpiSparkline;
+  let adCorr = adSalesCorrelation;
 
-function getFilteredSales(range: string) {
-  switch (range) {
-    case 'اليوم': return dailySales;
-    case 'الأسبوع': return weeklySales;
-    case 'الشهر': return monthlySales;
-    case '3 أشهر': return quarterlySales;
-    case 'سنة': return monthlySales;
-    default: return monthlySales;
+  switch (period) {
+    case 'day': {
+      // Show hourly data for the selected day
+      subtitle = value === 'all_days' ? 'متوسط الساعات — كل الأيام' : `يوم ${daysOfWeek.find(d => d.key === value)?.label || ''}`;
+      kpiData = { totalSales: 4087, totalOrders: 66, avgOrder: 61.9, adSpend: 478 };
+      spark = [40, 42, 48, 55, 62, 68, 65];
+      adCorr = adSalesCorrelation.slice(-7);
+      break;
+    }
+    case 'week': {
+      subtitle = 'هذا الأسبوع';
+      kpiData = { totalSales: 28612, totalOrders: 464, avgOrder: 61.7, adSpend: 3346 };
+      spark = [38, 42, 45, 52, 56, 60, 65];
+      adCorr = adSalesCorrelation.slice(-14);
+      break;
+    }
+    case 'month': {
+      if (value !== 'all_months') {
+        const monthData = monthlySales.find(m => m.month.startsWith(value.slice(5)) && m.month.includes(value.slice(2, 4)));
+        filteredMonthly = monthData ? [monthData] : monthlySales;
+        subtitle = monthsOfYear.find(m => m.key === value)?.label || 'الشهر الحالي';
+        const monthSales = monthData?.sales || 94970;
+        const monthOrders = monthData?.orders || 1669;
+        kpiData = { totalSales: monthSales, totalOrders: monthOrders, avgOrder: Math.round(monthSales / monthOrders * 10) / 10, adSpend: Math.round(monthSales * 0.133) };
+        spark = kpiSparkline;
+        adCorr = adSalesCorrelation.slice(-30);
+      } else {
+        subtitle = 'Jul 2025 — May 2026';
+        kpiData = { totalSales: 949700, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
+        spark = kpiSparkline;
+        adCorr = adSalesCorrelation;
+      }
+      break;
+    }
+    case 'year': {
+      if (value === '2025') {
+        filteredMonthly = monthlySales.slice(0, 6);
+        subtitle = '2025';
+        kpiData = { totalSales: 421095, totalOrders: 8053, avgOrder: 52.3, adSpend: 0 };
+      } else {
+        filteredMonthly = monthlySales.slice(6);
+        subtitle = '2026';
+        kpiData = { totalSales: 564718, totalOrders: 11551, avgOrder: 48.9, adSpend: 45230 };
+      }
+      spark = kpiSparkline;
+      adCorr = adSalesCorrelation;
+      break;
+    }
   }
-}
 
-function getFilteredAdCorrelation(range: string) {
-  const len = range === 'اليوم' ? 7 : range === 'الأسبوع' ? 14 : range === 'الشهر' ? 30 : adSalesCorrelation.length;
-  return adSalesCorrelation.slice(-len);
-}
-
-function getFilteredKPIs(range: string) {
-  switch (range) {
-    case 'اليوم':
-      return { totalSales: 4087, totalOrders: 66, avgOrder: 61.9, adSpend: 478 };
-    case 'الأسبوع':
-      return { totalSales: 28612, totalOrders: 464, avgOrder: 61.7, adSpend: 3346 };
-    case 'الشهر':
-      return { totalSales: 94970, totalOrders: 1669, avgOrder: 56.9, adSpend: 12663 };
-    case '3 أشهر':
-      return { totalSales: 284912, totalOrders: 5007, avgOrder: 56.9, adSpend: 37990 };
-    case 'سنة':
-      return { totalSales: 949700, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
-    default:
-      return { totalSales: 949700, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
+  // Determine which sales data to show for the chart
+  let chartData;
+  if (period === 'day') {
+    chartData = dailySales;
+  } else if (period === 'week') {
+    chartData = weeklySales;
+  } else {
+    chartData = filteredMonthly.length > 0 ? filteredMonthly : monthlySales;
   }
-}
 
-function getSparklineForRange(range: string) {
-  switch (range) {
-    case 'اليوم': return [40, 42, 48, 55, 62, 68, 65];
-    case 'الأسبوع': return [38, 42, 45, 52, 56, 60, 65];
-    case 'الشهر': return kpiSparkline;
-    case '3 أشهر': return [35, 40, 48, 55, 62, 58, 65];
-    case 'سنة': return kpiSparkline;
-    default: return kpiSparkline;
-  }
-}
-
-function getChartSubtitle(range: string) {
-  switch (range) {
-    case 'اليوم': return 'اليوم — كل ساعتين';
-    case 'الأسبوع': return 'هذا الأسبوع — يومياً';
-    case 'الشهر': return 'May 2026';
-    case '3 أشهر': return 'Mar — May 2026';
-    case 'سنة': return 'Jul 2025 — May 2026';
-    default: return 'Jul 2025 — May 2026';
-  }
+  return { chartData, adCorr, kpiData, spark, subtitle };
 }
 
 /* ─────────────────────── sidebar ─────────────────────── */
@@ -335,15 +385,28 @@ function AdminSidebar() {
 
 /* ─────────────────────── top bar ─────────────────────── */
 
-const dateRanges = ['اليوم', 'الأسبوع', 'الشهر', '3 أشهر', 'سنة'];
-
 interface TopBarProps {
-  activeRange: string;
-  onRangeChange: (range: string) => void;
+  activePeriod: string;
+  activeValue: string;
+  onPeriodChange: (period: string) => void;
+  onValueChange: (value: string) => void;
+  onDownload: () => void;
 }
 
-function TopBar({ activeRange, onRangeChange }: TopBarProps) {
+function TopBar({ activePeriod, activeValue, onPeriodChange, onValueChange, onDownload }: TopBarProps) {
   const today = 'الثلاثاء، 20 مايو 2026';
+
+  const getOptions = () => {
+    switch (activePeriod) {
+      case 'day': return daysOfWeek;
+      case 'week': return weekDays;
+      case 'month': return monthsOfYear;
+      case 'year': return yearsList;
+      default: return monthsOfYear;
+    }
+  };
+
+  const options = getOptions();
 
   return (
     <div
@@ -356,22 +419,47 @@ function TopBar({ activeRange, onRangeChange }: TopBarProps) {
         <span className="text-warm-brown text-sm font-tajawal">{today}</span>
       </div>
 
-      {/* Date Range Selector */}
-      <div className="hidden md:flex items-center bg-surface-cream rounded-full p-1 gap-1">
-        {dateRanges.map((range) => (
-          <button
-            key={range}
-            onClick={() => onRangeChange(range)}
-            className={cn(
-              'relative px-4 py-1.5 rounded-full text-sm font-tajawal font-semibold transition-all duration-200',
-              activeRange === range
-                ? 'text-crust-dark bg-ghee-gold shadow-gold'
-                : 'text-warm-brown hover:text-crust-dark'
-            )}
-          >
-            {range}
-          </button>
-        ))}
+      {/* Date Period Selector */}
+      <div className="hidden md:flex items-center gap-3">
+        {/* Period type tabs */}
+        <div className="flex items-center bg-surface-cream rounded-full p-1 gap-1">
+          {periodTypes.map((pt) => (
+            <button
+              key={pt.key}
+              onClick={() => onPeriodChange(pt.key)}
+              className={cn(
+                'relative px-4 py-1.5 rounded-full text-sm font-tajawal font-semibold transition-all duration-200',
+                activePeriod === pt.key
+                  ? 'text-crust-dark bg-ghee-gold shadow-gold'
+                  : 'text-warm-brown hover:text-crust-dark'
+              )}
+            >
+              {pt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Specific value dropdown */}
+        <select
+          value={activeValue}
+          onChange={(e) => onValueChange(e.target.value)}
+          className="px-4 py-1.5 rounded-full text-sm font-tajawal font-semibold bg-white border border-ghee-gold/30 text-crust-dark focus:outline-none focus:ring-2 focus:ring-ghee-gold/40 cursor-pointer"
+          style={{ direction: 'rtl' }}
+        >
+          {options.map((opt) => (
+            <option key={opt.key} value={opt.key}>{opt.label}</option>
+          ))}
+        </select>
+
+        {/* Download button */}
+        <button
+          onClick={onDownload}
+          className="flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-tajawal font-semibold bg-sage-green text-white hover:bg-sage-green/90 transition-all"
+          title="تحميل البيانات كملف Excel"
+        >
+          <Download className="w-4 h-4" />
+          <span>تحميل Excel</span>
+        </button>
       </div>
 
       {/* Right Actions */}
@@ -501,10 +589,78 @@ function SortIcon({ field, sortField, sortDir }: { field: string; sortField: str
   return sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-ghee-gold" /> : <ArrowDown className="w-3 h-3 text-ghee-gold" />;
 }
 
+/* ─────────────────────── Excel download helper ─────────────────────── */
+
+function handleDownloadFactory(
+  activePeriod: string,
+  activeValue: string,
+  filteredSales: Array<{ month: string; sales: number; orders: number }>,
+  filteredKPIs: { totalSales: number; totalOrders: number; avgOrder: number; adSpend: number },
+  filteredAdCorrelation: Array<{ date: string; adSpend: number; sales: number; messages: number }>
+) {
+  return function handleDownload() {
+    // Get period label
+    const periodLabel = periodTypes.find(p => p.key === activePeriod)?.label || activePeriod;
+    const valueLabel = 
+      activePeriod === 'day' ? daysOfWeek.find(d => d.key === activeValue)?.label :
+      activePeriod === 'week' ? weekDays.find(w => w.key === activeValue)?.label :
+      activePeriod === 'month' ? monthsOfYear.find(m => m.key === activeValue)?.label :
+      yearsList.find(y => y.key === activeValue)?.label || activeValue;
+
+    // Build CSV content
+    let csv = '\uFEFF'; // BOM for Arabic
+    csv += `تقرير فطير شرقي - ${periodLabel}: ${valueLabel}\n`;
+    csv += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA')}\n\n`;
+
+    // Section 1: KPI Summary
+    csv += '=== ملخص المؤشرات ===\n';
+    csv += 'المؤشر,القيمة\n';
+    csv += `إجمالي المبيعات,${filteredKPIs.totalSales} ر.س\n`;
+    csv += `عدد الطلبات,${filteredKPIs.totalOrders}\n`;
+    csv += `متوسط قيمة الطلب,${filteredKPIs.avgOrder} ر.س\n`;
+    csv += `تكلفة الإعلانات,${filteredKPIs.adSpend} ر.س\n\n`;
+
+    // Section 2: Sales Data
+    csv += '=== بيانات المبيعات ===\n';
+    csv += 'الفترة,المبيعات (ر.س),عدد الطلبات\n';
+    filteredSales.forEach(row => {
+      csv += `${row.month},${row.sales},${row.orders}\n`;
+    });
+    csv += '\n';
+
+    // Section 3: Advertising Data
+    csv += '=== بيانات الإعلانات ===\n';
+    csv += 'التاريخ,إنفاق إعلاني,مبيعات,محادثات\n';
+    filteredAdCorrelation.forEach(row => {
+      csv += `${row.date},${row.adSpend},${row.sales},${row.messages}\n`;
+    });
+    csv += '\n';
+
+    // Section 4: Top Items
+    csv += '=== الأصناف الأكثر مبيعاً ===\n';
+    csv += 'الصنف,الفئة,الكمية,الإيرادات,الاتجاه\n';
+    topItems.forEach(item => {
+      csv += `${item.name},${item.category},${item.qty},${item.revenue},${item.trend === 'up' ? 'صاعد' : 'هابط'}\n`;
+    });
+
+    // Download
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `fetir-sharqi-report-${activePeriod}-${activeValue}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+}
+
 /* ─────────────────────── main dashboard ─────────────────────── */
 
 export default function Dashboard() {
-  const [activeRange, setActiveRange] = useState('الشهر');
+  const [activePeriod, setActivePeriod] = useState('month');
+  const [activeValue, setActiveValue] = useState('2026-05');
   const [sortField, setSortField] = useState<'qty' | 'revenue'>('revenue');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
@@ -527,12 +683,10 @@ export default function Dashboard() {
     return sorted;
   }, [sortField, sortDir]);
 
-  // Filtered data based on selected range
-  const filteredSales = useMemo(() => getFilteredSales(activeRange), [activeRange]);
-  const filteredAdCorrelation = useMemo(() => getFilteredAdCorrelation(activeRange), [activeRange]);
-  const filteredKPIs = useMemo(() => getFilteredKPIs(activeRange), [activeRange]);
-  const filteredSparkline = useMemo(() => getSparklineForRange(activeRange), [activeRange]);
-  const chartSubtitle = useMemo(() => getChartSubtitle(activeRange), [activeRange]);
+  // Filtered data based on selected period and value
+  const { chartData: filteredSales, adCorr: filteredAdCorrelation, kpiData: filteredKPIs, spark: filteredSparkline, subtitle: chartSubtitle } = useMemo(() => getFilteredData(activePeriod, activeValue), [activePeriod, activeValue]);
+
+  const handleDownload = useMemo(() => handleDownloadFactory(activePeriod, activeValue, filteredSales, filteredKPIs, filteredAdCorrelation), [activePeriod, activeValue, filteredSales, filteredKPIs, filteredAdCorrelation]);
 
   return (
     <div dir="rtl" className="min-h-[100dvh] bg-dough-cream">
@@ -540,7 +694,7 @@ export default function Dashboard() {
 
       {/* Main content offset by sidebar */}
       <div className="mr-[280px] min-h-[100dvh] flex flex-col">
-        <TopBar activeRange={activeRange} onRangeChange={setActiveRange} />
+        <TopBar activePeriod={activePeriod} activeValue={activeValue} onPeriodChange={setActivePeriod} onValueChange={setActiveValue} onDownload={handleDownload} />
 
         {/* ─── KPI Cards Row ─── */}
         <section className="p-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -1153,7 +1307,7 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* ─── Seasonality Heatmap ─── */}
+        {/* ─── Busy Hours Heatmap ─── */}
         <section className="px-6 pb-8">
           <motion.div
             custom={11}
@@ -1162,13 +1316,58 @@ export default function Dashboard() {
             variants={fadeUp}
             className="bg-white/72 backdrop-blur-[20px] border border-ghee-gold/25 rounded-xl p-6 shadow-glass"
           >
-            <h3 className="font-cairo font-bold text-lg text-crust-dark mb-2">الأنماط الموسمية</h3>
+            <h3 className="font-cairo font-bold text-lg text-crust-dark mb-2">ساعات الذروة — Busy Hours</h3>
             <p className="text-warm-brown text-sm font-tajawal mb-6">
-              شدة اللون تعكس حجم المبيعات — الأحمر الغامق = أعلى مبيعات
+              الألوان الداكنة = أعلى مبيعات | Darker colors = higher sales
             </p>
 
+            {/* Peak hours summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <div className="bg-error-red/10 border border-error-red/20 rounded-lg p-3 text-center">
+                <p className="text-error-red font-cairo font-bold text-lg">🔥 9-11 مساءً</p>
+                <p className="text-warm-brown text-xs font-tajawal">ذروة المبيعات</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~10K ر.س/ساعة</p>
+              </div>
+              <div className="bg-ember-orange/10 border border-ember-orange/20 rounded-lg p-3 text-center">
+                <p className="text-ember-orange font-cairo font-bold text-lg">6-9 مساءً</p>
+                <p className="text-warm-brown text-xs font-tajawal">مرتفع جداً</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~8K ر.س/ساعة</p>
+              </div>
+              <div className="bg-ghee-gold/10 border border-ghee-gold/20 rounded-lg p-3 text-center">
+                <p className="text-ghee-gold font-cairo font-bold text-lg">12 ظهراً-6 مساءً</p>
+                <p className="text-warm-brown text-xs font-tajawal">متوسط</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~4K ر.س/ساعة</p>
+              </div>
+              <div className="bg-sage-green/10 border border-sage-green/20 rounded-lg p-3 text-center">
+                <p className="text-sage-green font-cairo font-bold text-lg">3 صباحاً-12 ظهراً</p>
+                <p className="text-warm-brown text-xs font-tajawal">منخفض</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~1K ر.س/ساعة</p>
+              </div>
+            </div>
+
+            {/* Heatmap */}
             <div className="overflow-x-auto">
               <div className="min-w-[600px]">
+                {/* Legend */}
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <span className="text-xs font-tajawal text-warm-brown">منخفض</span>
+                  <div className="flex gap-1">
+                    {[
+                      { c: '#FDF6EC', l: 'Low' },
+                      { c: '#F5E6D0', l: 'Med' },
+                      { c: '#E5B84B', l: 'High' },
+                      { c: '#D4A844', l: 'V.High' },
+                      { c: '#C4943A', l: 'Peak' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex flex-col items-center gap-1">
+                        <div className="w-8 h-5 rounded-sm" style={{ backgroundColor: item.c }} />
+                        <span className="text-[10px] font-tajawal text-warm-brown">{item.l}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <span className="text-xs font-tajawal text-warm-brown">ذروة</span>
+                </div>
+
                 {/* Hour headers */}
                 <div className="grid grid-cols-[80px_repeat(12,1fr)] gap-1 mb-1">
                   <div />
@@ -1179,45 +1378,48 @@ export default function Dashboard() {
                   ))}
                 </div>
 
-                {/* Heatmap rows */}
+                {/* Heatmap rows with tooltips */}
                 {seasonalityData.map((row, ri) => (
                   <div key={ri} className="grid grid-cols-[80px_repeat(12,1fr)] gap-1 mb-1">
                     <div className="flex items-center justify-end pr-2 text-xs font-tajawal font-semibold text-crust-dark">
                       {dayLabels[ri]}
                     </div>
-                    {row.map((color, ci) => (
-                      <motion.div
-                        key={ci}
-                        initial={{ opacity: 0, scale: 0.5 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: ri * 0.02 + ci * 0.005, duration: 0.2 }}
-                        className="aspect-square rounded-md"
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
+                    {row.map((color, ci) => {
+                      const intensity =
+                        color === '#C4943A' ? 'ذروة!' :
+                        color === '#D4A844' ? 'مرتفع جداً' :
+                        color === '#E5B84B' ? 'مرتفع' :
+                        color === '#F5E6D0' ? 'متوسط' : 'منخفض';
+                      return (
+                        <div key={ci} className="relative group cursor-pointer">
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: ri * 0.02 + ci * 0.005, duration: 0.2 }}
+                            className="aspect-square rounded-md border border-transparent group-hover:border-crust-dark/30 group-hover:scale-110 transition-all"
+                            style={{ backgroundColor: color }}
+                          />
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-50 whitespace-nowrap">
+                            <div className="bg-crust-dark text-dough-cream text-xs font-tajawal px-2 py-1 rounded-lg shadow-lg">
+                              {dayLabels[ri]} — {hourLabels[ci]}: {intensity}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 ))}
-
-                {/* Legend */}
-                <div className="flex items-center justify-center gap-3 mt-4">
-                  <span className="text-xs font-tajawal text-warm-brown">منخفض</span>
-                  <div className="flex gap-0.5">
-                    {['#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844'].map((c, i) => (
-                      <div key={i} className="w-6 h-3 rounded-sm" style={{ backgroundColor: c, opacity: 0.4 + i * 0.15 }} />
-                    ))}
-                  </div>
-                  <span className="text-xs font-tajawal text-warm-brown">مرتفع</span>
-                </div>
               </div>
             </div>
 
             <div className="mt-4 bg-surface-cream rounded-lg p-4">
               <p className="text-crust-dark text-sm font-tajawal font-semibold mb-1">
-                أوقات الذروة المتوقعة: الخميس-الجمعة 8-11 مساءً
+                أوقات الذروة: الخميس والجمعة 8-11 مساءً | Thursday-Friday 8-11 PM
               </p>
               <p className="text-warm-brown text-xs font-tajawal">
-                يُلاحظ أن المبيعات تصل لذروتها في المساء وخلال نهاية الأسبوع. يُنصح بتكثيف الإعلانات 
-                يومي الأحد والاثنين لتعويض الانخفاض الطبيعي في هذه الفترة.
+                المبيعات تصل لذروتها في المساء وخلال نهاية الأسبوع. ننصح بتكثيف الإعلانات والموظفين في هذه الفترة.
+                الأحد والإثنين هما أقل أيام المبيعات — فرصة لعمل عروض خاصة.
               </p>
             </div>
           </motion.div>
