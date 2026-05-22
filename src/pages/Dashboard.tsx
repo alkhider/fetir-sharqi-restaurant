@@ -53,22 +53,6 @@ const fadeUp = {
 
 /* ─────────────────────── mock data ─────────────────────── */
 
-const monthlySales = [
-  { month: 'Jul 2025', sales: 52000, orders: 890 },
-  { month: 'Aug 2025', sales: 58000, orders: 1020 },
-  { month: 'Sep 2025', sales: 64000, orders: 1120 },
-  { month: 'Oct 2025', sales: 71000, orders: 1250 },
-  { month: 'Nov 2025', sales: 78000, orders: 1380 },
-  { month: 'Dec 2025', sales: 86000, orders: 1520 },
-  { month: 'Jan 2026', sales: 92000, orders: 1630 },
-  { month: 'Feb 2026', sales: 88000, orders: 1560 },
-  { month: 'Mar 2026', sales: 95000, orders: 1670 },
-  { month: 'Apr 2026', sales: 102000, orders: 1820 },
-  { month: 'May 2026', sales: 108700, orders: 1836 },
-];
-
-
-
 const kpiSparkline = [42, 45, 48, 52, 56, 54, 58, 62, 60, 65, 68];
 
 const orderTypeData = [
@@ -164,14 +148,26 @@ const channelData = [
   { name: 'كيتا', value: 20, fill: '#D4652A' },
 ];
 
+// Real heatmap data: each cell shows [color, salesAmount] for tooltip
 const seasonalityData = [
-  ['#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#C4943A', '#C4943A', '#D4A844', '#E5B84B', '#F5E6D0', '#FDF6EC'],
-  ['#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#C4943A', '#C4943A', '#E5B84B', '#F5E6D0', '#FDF6EC'],
-  ['#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#D4A844', '#D4A844', '#C4943A', '#C4943A', '#D4A844', '#D4A844', '#F5E6D0', '#FDF6EC'],
-  ['#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#C4943A', '#C4943A', '#D4A844', '#D4A844', '#D4A844', '#E5B84B', '#F5E6D0'],
-  ['#FDF6EC', '#FDF6EC', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#D4A844', '#C4943A', '#C4943A', '#D4A844', '#E5B84B', '#F5E6D0'],
-  ['#FDF6EC', '#FDF6EC', '#F5E6D0', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#E5B84B', '#F5E6D0'],
-  ['#FDF6EC', '#FDF6EC', '#F5E6D0', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#D4A844', '#E5B84B', '#F5E6D0'],
+  ['#E5B84B', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#E5B84B', '#E5B84B', '#D4A844', '#D4A844'],
+  ['#E5B84B', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#F5E6D0', '#D4A844', '#D4A844', '#D4A844', '#D4A844'],
+  ['#F5E6D0', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#F5E6D0', '#E5B84B', '#D4A844', '#E5B84B', '#D4A844'],
+  ['#F5E6D0', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#D4A844'],
+  ['#E5B84B', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#F5E6D0', '#D4A844', '#D4A844', '#C4943A', '#C4943A'],
+  ['#E5B84B', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#FDF6EC', '#E5B84B', '#E5B84B', '#D4A844', '#C4943A', '#C4943A', '#C4943A'],
+  ['#E5B84B', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#D4A844', '#D4A844'],
+];
+
+// Real sales amounts for tooltips (2-hour bins, same structure as seasonalityData)
+const seasonalityValues = [
+  [14007, 2110, 680, 0, 1820, 3668, 7116, 7860, 17417, 17249, 22697, 23260],
+  [13869, 2872, 511, 0, 2521, 4094, 5771, 8359, 20269, 22859, 24465, 21736],
+  [10438, 1030, 140, 94, 2575, 4392, 7167, 7382, 14574, 19945, 19154, 21406],
+  [11005, 2510, 319, 0, 2282, 5991, 6651, 9247, 16904, 22260, 19897, 21821],
+  [19025, 1497, 275, 0, 3581, 4499, 8319, 7581, 24562, 25274, 28001, 32529],
+  [17345, 1384, 297, 0, 4021, 3666, 12677, 18624, 22719, 31024, 36640, 38738],
+  [12250, 1807, 412, 0, 1532, 5007, 9526, 12773, 21043, 20688, 24933, 25057],
 ];
 
 const dayLabels = ['سبت', 'جمعة', 'خميس', 'أربعاء', 'ثلاثاء', 'إثنين', 'أحد'];
@@ -223,97 +219,148 @@ const periodTypes = [
   { key: 'year', label: 'سنة' },
 ];
 
-/* ─────────────────────── date filtering helpers ─────────────────────── */
+/* ─────────────────────── REAL data lookup tables ─────────────────────── */
 
-const weeklySales = [
-  { month: 'Sun', sales: 18500, orders: 320 },
-  { month: 'Mon', sales: 16200, orders: 285 },
-  { month: 'Tue', sales: 17800, orders: 310 },
-  { month: 'Wed', sales: 22400, orders: 390 },
-  { month: 'Thu', sales: 26100, orders: 450 },
-  { month: 'Fri', sales: 19500, orders: 340 },
-  { month: 'Sat', sales: 18800, orders: 325 },
+const realMonthlySales = [
+  { month: 'Jul 2025', sales: 62165, orders: 1282 },
+  { month: 'Aug 2025', sales: 63784, orders: 1232 },
+  { month: 'Sep 2025', sales: 51593, orders: 1027 },
+  { month: 'Oct 2025', sales: 60301, orders: 1142 },
+  { month: 'Nov 2025', sales: 81671, orders: 1529 },
+  { month: 'Dec 2025', sales: 104572, orders: 1858 },
+  { month: 'Jan 2026', sales: 141734, orders: 2337 },
+  { month: 'Feb 2026', sales: 91576, orders: 1491 },
+  { month: 'Mar 2026', sales: 124537, orders: 1926 },
+  { month: 'Apr 2026', sales: 109969, orders: 1840 },
+  { month: 'May 2026', sales: 57799, orders: 1032 },
 ];
 
-const dailySales = [
-  { month: '6 AM', sales: 1200, orders: 22 },
-  { month: '8 AM', sales: 2100, orders: 38 },
-  { month: '10 AM', sales: 2800, orders: 52 },
-  { month: '12 PM', sales: 4200, orders: 78 },
-  { month: '2 PM', sales: 5100, orders: 92 },
-  { month: '4 PM', sales: 6800, orders: 118 },
-  { month: '6 PM', sales: 8900, orders: 152 },
-  { month: '8 PM', sales: 10200, orders: 178 },
-  { month: '10 PM', sales: 9500, orders: 165 },
-  { month: '12 AM', sales: 6200, orders: 108 },
+const realDayOfWeek: Record<string, { label: string; sales: number; orders: number }> = {
+  'Sunday':    { label: 'الأحد',    sales: 117885, orders: 2180 },
+  'Monday':    { label: 'الإثنين',  sales: 127326, orders: 2293 },
+  'Tuesday':   { label: 'الثلاثاء', sales: 108295, orders: 2011 },
+  'Wednesday': { label: 'الأربعاء', sales: 118889, orders: 2181 },
+  'Thursday':  { label: 'الخميس',  sales: 155142, orders: 2708 },
+  'Friday':    { label: 'الجمعة',  sales: 187136, orders: 3007 },
+  'Saturday':  { label: 'السبت',   sales: 135028, orders: 2316 },
+};
+
+const realYear: Record<string, { sales: number; orders: number }> = {
+  '2025': { sales: 424086, orders: 8070 },
+  '2026': { sales: 525614, orders: 8626 },
+};
+
+// Hourly data for chart (2-hour bins)
+const realHourlyChart = [
+  { month: '12-1 ص', sales: 97939, orders: 1769 },
+  { month: '2-3 ص', sales: 13211, orders: 237 },
+  { month: '4-5 ص', sales: 2776, orders: 53 },
+  { month: '6-7 ص', sales: 94, orders: 1 },
+  { month: '8-9 ص', sales: 18333, orders: 330 },
+  { month: '10-11 ص', sales: 19317, orders: 617 },
+  { month: '12-1 م', sales: 51527, orders: 990 },
+  { month: '2-3 م', sales: 39787, orders: 708 },
+  { month: '4-5 م', sales: 137487, orders: 2362 },
+  { month: '6-7 م', sales: 146226, orders: 2400 },
+  { month: '8-9 م', sales: 175787, orders: 3056 },
+  { month: '10-11 م', sales: 184545, orders: 3358 },
 ];
 
 function getFilteredData(period: string, value: string) {
-  // Filter monthlySales based on period and value
-  let filteredMonthly = [...monthlySales];
-  let subtitle = 'Jul 2025 — May 2026';
+  let chartData = realMonthlySales;
+  let adCorr = adSalesCorrelation;
   let kpiData = { totalSales: 949700, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
   let spark = kpiSparkline;
-  let adCorr = adSalesCorrelation;
+  let subtitle = 'Jul 2025 — May 2026';
 
   switch (period) {
     case 'day': {
-      // Show hourly data for the selected day
-      subtitle = value === 'all_days' ? 'متوسط الساعات — كل الأيام' : `يوم ${daysOfWeek.find(d => d.key === value)?.label || ''}`;
-      kpiData = { totalSales: 4087, totalOrders: 66, avgOrder: 61.9, adSpend: 478 };
-      spark = [40, 42, 48, 55, 62, 68, 65];
+      // Look up the specific day's REAL data
+      const dayKey = value === 'all_days' ? null : value;
+      const dayData = dayKey ? realDayOfWeek[dayKey] : null;
+      subtitle = dayData ? `يوم ${dayData.label}` : 'كل الأيام — متوسط';
+      // Use hourly chart for daily view
+      chartData = realHourlyChart;
+      if (dayData) {
+        kpiData = {
+          totalSales: dayData.sales,
+          totalOrders: dayData.orders,
+          avgOrder: Math.round(dayData.sales / dayData.orders * 10) / 10,
+          adSpend: Math.round(dayData.sales * 0.05),
+        };
+      } else {
+        // Average across all days
+        kpiData = { totalSales: 135658, totalOrders: 2398, avgOrder: 56.6, adSpend: 6783 };
+      }
+      spark = [40, 15, 5, 1, 10, 15, 30, 25, 55, 60, 75, 80];
       adCorr = adSalesCorrelation.slice(-7);
       break;
     }
     case 'week': {
-      subtitle = 'هذا الأسبوع';
-      kpiData = { totalSales: 28612, totalOrders: 464, avgOrder: 61.7, adSpend: 3346 };
-      spark = [38, 42, 45, 52, 56, 60, 65];
+      // Show daily breakdown for the week
+      chartData = [
+        { month: 'الأحد', sales: 117885, orders: 2180 },
+        { month: 'الإثنين', sales: 127326, orders: 2293 },
+        { month: 'الثلاثاء', sales: 108295, orders: 2011 },
+        { month: 'الأربعاء', sales: 118889, orders: 2181 },
+        { month: 'الخميس', sales: 155142, orders: 2708 },
+        { month: 'الجمعة', sales: 187136, orders: 3007 },
+        { month: 'السبت', sales: 135028, orders: 2316 },
+      ];
+      subtitle = value === 'all_weeks' ? 'كل الأيام' : 'أسبوع محدد';
+      kpiData = { totalSales: 949701, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
+      spark = [42, 45, 40, 44, 58, 70, 50];
       adCorr = adSalesCorrelation.slice(-14);
       break;
     }
     case 'month': {
       if (value !== 'all_months') {
-        const monthData = monthlySales.find(m => m.month.startsWith(value.slice(5)) && m.month.includes(value.slice(2, 4)));
-        filteredMonthly = monthData ? [monthData] : monthlySales;
-        subtitle = monthsOfYear.find(m => m.key === value)?.label || 'الشهر الحالي';
-        const monthSales = monthData?.sales || 94970;
-        const monthOrders = monthData?.orders || 1669;
-        kpiData = { totalSales: monthSales, totalOrders: monthOrders, avgOrder: Math.round(monthSales / monthOrders * 10) / 10, adSpend: Math.round(monthSales * 0.133) };
-        spark = kpiSparkline;
-        adCorr = adSalesCorrelation.slice(-30);
+        // Direct lookup by month key → find matching month data
+        const monthMap: Record<string, string> = {
+          '2025-07': 'Jul 2025', '2025-08': 'Aug 2025', '2025-09': 'Sep 2025',
+          '2025-10': 'Oct 2025', '2025-11': 'Nov 2025', '2025-12': 'Dec 2025',
+          '2026-01': 'Jan 2026', '2026-02': 'Feb 2026', '2026-03': 'Mar 2026',
+          '2026-04': 'Apr 2026', '2026-05': 'May 2026',
+        };
+        const monthLabel = monthMap[value];
+        const m = realMonthlySales.find(x => x.month === monthLabel);
+        if (m) {
+          chartData = [m];
+          subtitle = monthLabel;
+          kpiData = {
+            totalSales: m.sales,
+            totalOrders: m.orders,
+            avgOrder: Math.round(m.sales / m.orders * 10) / 10,
+            adSpend: Math.round(m.sales * 0.05),
+          };
+        }
       } else {
+        chartData = realMonthlySales;
         subtitle = 'Jul 2025 — May 2026';
         kpiData = { totalSales: 949700, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
-        spark = kpiSparkline;
-        adCorr = adSalesCorrelation;
       }
+      spark = kpiSparkline;
+      adCorr = value === 'all_months' ? adSalesCorrelation : adSalesCorrelation.slice(-30);
       break;
     }
     case 'year': {
+      const yr = realYear[value] || realYear['2026'];
       if (value === '2025') {
-        filteredMonthly = monthlySales.slice(0, 6);
-        subtitle = '2025';
-        kpiData = { totalSales: 421095, totalOrders: 8053, avgOrder: 52.3, adSpend: 0 };
+        chartData = realMonthlySales.slice(0, 6);
       } else {
-        filteredMonthly = monthlySales.slice(6);
-        subtitle = '2026';
-        kpiData = { totalSales: 564718, totalOrders: 11551, avgOrder: 48.9, adSpend: 45230 };
+        chartData = realMonthlySales.slice(6);
       }
-      spark = kpiSparkline;
+      subtitle = value;
+      kpiData = {
+        totalSales: yr.sales,
+        totalOrders: yr.orders,
+        avgOrder: Math.round(yr.sales / yr.orders * 10) / 10,
+        adSpend: value === '2025' ? 0 : 45230,
+      };
+      spark = value === '2025' ? [30, 35, 38, 45, 50, 55] : kpiSparkline.slice(5);
       adCorr = adSalesCorrelation;
       break;
     }
-  }
-
-  // Determine which sales data to show for the chart
-  let chartData;
-  if (period === 'day') {
-    chartData = dailySales;
-  } else if (period === 'week') {
-    chartData = weeklySales;
-  } else {
-    chartData = filteredMonthly.length > 0 ? filteredMonthly : monthlySales;
   }
 
   return { chartData, adCorr, kpiData, spark, subtitle };
@@ -1323,25 +1370,25 @@ export default function Dashboard() {
 
             {/* Peak hours summary */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              <div className="bg-error-red/10 border border-error-red/20 rounded-lg p-3 text-center">
-                <p className="text-error-red font-cairo font-bold text-lg">🔥 9-11 مساءً</p>
+              <div className="bg-[#C4943A]/15 border border-[#C4943A]/30 rounded-lg p-3 text-center">
+                <p className="text-[#C4943A] font-cairo font-bold text-sm">🔥 الجمعة 10-12 ليلاً</p>
                 <p className="text-warm-brown text-xs font-tajawal">ذروة المبيعات</p>
-                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~10K ر.س/ساعة</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">38,738 ر.س</p>
               </div>
-              <div className="bg-ember-orange/10 border border-ember-orange/20 rounded-lg p-3 text-center">
-                <p className="text-ember-orange font-cairo font-bold text-lg">6-9 مساءً</p>
+              <div className="bg-[#D4A844]/15 border border-[#D4A844]/30 rounded-lg p-3 text-center">
+                <p className="text-[#D4A844] font-cairo font-bold text-sm">الخميس 10-12 ليلاً</p>
                 <p className="text-warm-brown text-xs font-tajawal">مرتفع جداً</p>
-                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~8K ر.س/ساعة</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">32,529 ر.س</p>
               </div>
-              <div className="bg-ghee-gold/10 border border-ghee-gold/20 rounded-lg p-3 text-center">
-                <p className="text-ghee-gold font-cairo font-bold text-lg">12 ظهراً-6 مساءً</p>
-                <p className="text-warm-brown text-xs font-tajawal">متوسط</p>
-                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~4K ر.س/ساعة</p>
+              <div className="bg-[#E5B84B]/15 border border-[#E5B84B]/30 rounded-lg p-3 text-center">
+                <p className="text-[#E5B84B] font-cairo font-bold text-sm">6-8 مساءً</p>
+                <p className="text-warm-brown text-xs font-tajawal">مرتفع</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~27K ر.س</p>
               </div>
-              <div className="bg-sage-green/10 border border-sage-green/20 rounded-lg p-3 text-center">
-                <p className="text-sage-green font-cairo font-bold text-lg">3 صباحاً-12 ظهراً</p>
+              <div className="bg-[#6B7F59]/10 border border-[#6B7F59]/20 rounded-lg p-3 text-center">
+                <p className="text-[#6B7F59] font-cairo font-bold text-sm">3 صباحاً-12 ظهراً</p>
                 <p className="text-warm-brown text-xs font-tajawal">منخفض</p>
-                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~1K ر.س/ساعة</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~3K ر.س</p>
               </div>
             </div>
 
@@ -1385,6 +1432,7 @@ export default function Dashboard() {
                       {dayLabels[ri]}
                     </div>
                     {row.map((color, ci) => {
+                      const salesVal = seasonalityValues[ri][ci];
                       const intensity =
                         color === '#C4943A' ? 'ذروة!' :
                         color === '#D4A844' ? 'مرتفع جداً' :
@@ -1399,10 +1447,9 @@ export default function Dashboard() {
                             className="aspect-square rounded-md border border-transparent group-hover:border-crust-dark/30 group-hover:scale-110 transition-all"
                             style={{ backgroundColor: color }}
                           />
-                          {/* Tooltip */}
                           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-50 whitespace-nowrap">
                             <div className="bg-crust-dark text-dough-cream text-xs font-tajawal px-2 py-1 rounded-lg shadow-lg">
-                              {dayLabels[ri]} — {hourLabels[ci]}: {intensity}
+                              {dayLabels[ri]} — {hourLabels[ci]}: {salesVal.toLocaleString()} ر.س ({intensity})
                             </div>
                           </div>
                         </div>
