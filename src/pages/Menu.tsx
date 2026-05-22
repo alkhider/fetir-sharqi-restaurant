@@ -172,10 +172,21 @@ function MenuCard({
             {item.description}
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-ghee-gold text-xl font-bold">
-              {item.price}{' '}
-              <span className="text-sm font-normal text-warm-brown">ر.س</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="text-ghee-gold text-xl font-bold">
+                {item.price}{' '}
+                <span className="text-sm font-normal text-warm-brown">ر.س</span>
+                {item.priceLarge && (
+                  <span className="text-sm text-warm-brown/60 mr-2">
+                    / {item.priceLarge} كبير
+                  </span>
+                )}
+              </span>
+              <span className="text-warm-brown/60 text-xs font-tajawal mt-0.5">
+                {item.calories} سعرة
+                {item.caloriesLarge && ` / ${item.caloriesLarge} كبير`}
+              </span>
+            </div>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => {
@@ -420,6 +431,9 @@ export default function Menu() {
 
   // IntersectionObserver to update active tab on scroll
   useEffect(() => {
+    // Don't override 'all' when user manually selected it
+    if (activeTab === 'all') return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -436,7 +450,7 @@ export default function Menu() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [activeTab]);
 
   return (
     <div className="min-h-[100dvh] bg-dough-cream">
@@ -525,53 +539,20 @@ export default function Menu() {
       {/* Menu Grid */}
       <section className="container-custom py-10 pb-20">
         {activeTab === 'all' && !search ? (
-          // Show all categories in sections
-          <div className="flex flex-col gap-14">
-            {categories.map((cat) => (
-              <div
-                key={cat.key}
-                ref={(el) => {
-                  sectionRefs.current[cat.key] = el;
-                }}
-                data-category={cat.key}
-              >
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, ease: easeOutExpo }}
-                  className="flex items-center gap-4 mb-6"
-                >
-                  <img
-                    src={cat.image}
-                    alt={cat.label}
-                    className="w-10 h-10 rounded-lg object-cover"
-                  />
-                  <h2 className="font-cairo font-bold text-2xl text-crust-dark">
-                    {cat.label}
-                  </h2>
-                  <div className="flex-1 h-px bg-[rgba(140,94,60,0.15)]" />
-                  <span className="text-caption text-warm-brown bg-surface-cream px-3 py-1 rounded-full">
-                    {cat.items.length} صنف
-                  </span>
-                </motion.div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {cat.items.map((item) => (
-                    <MenuCard
-                      key={item.id}
-                      item={item}
-                      onAdd={handleAdd}
-                      quantity={getItemQuantity(item.id)}
-                      onQuantityChange={(id, q) =>
-                        q === 0
-                          ? updateQuantity(id, 0)
-                          : updateQuantity(id, q)
-                      }
-                    />
-                  ))}
-                </div>
-              </div>
+          // Show ALL items in a flat grid
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {allItems.map((item) => (
+              <MenuCard
+                key={item.id}
+                item={item}
+                onAdd={handleAdd}
+                quantity={getItemQuantity(item.id)}
+                onQuantityChange={(id, q) =>
+                  q === 0
+                    ? updateQuantity(id, 0)
+                    : updateQuantity(id, q)
+                }
+              />
             ))}
           </div>
         ) : (
