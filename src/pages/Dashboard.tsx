@@ -1,0 +1,1477 @@
+import { useState, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router';
+import CountUp from 'react-countup';
+import { motion } from 'framer-motion';
+import {
+  LayoutDashboard,
+  ShoppingCart,
+  Megaphone,
+  TrendingUp,
+  ClipboardList,
+  Users,
+  FileUp,
+  LogOut,
+  Search,
+  Bell,
+  ChevronDown,
+  Download,
+  TrendingDown,
+  ArrowUp,
+  ArrowDown,
+  Minus,
+  Lightbulb,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  ComposedChart,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+
+/* ─────────────────────── animation helpers ─────────────────────── */
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+  }),
+};
+
+/* ─────────────────────── mock data ─────────────────────── */
+
+const kpiSparkline = [42, 45, 48, 52, 56, 54, 58, 62, 60, 65, 68];
+
+const orderTypeData = [
+  { name: 'سفري', value: 42, color: '#D4A844' },
+  { name: 'محلي', value: 25, color: '#D4652A' },
+  { name: 'هاتف', value: 18, color: '#6B7F59' },
+  { name: 'كيتا', value: 10, color: '#5B8FA8' },
+  { name: 'هنجر ستيشن', value: 5, color: '#8C5E3C' },
+];
+
+const paymentTypeData = [
+  { name: 'شبكة', value: 55, color: '#D4A844' },
+  { name: 'نقدي', value: 35, color: '#6B7F59' },
+  { name: 'آجل', value: 10, color: '#D4652A' },
+];
+
+const adSalesCorrelation = [
+  { date: '01 May', adSpend: 1200, sales: 2800, messages: 45 },
+  { date: '02 May', adSpend: 1350, sales: 3100, messages: 52 },
+  { date: '03 May', adSpend: 1100, sales: 2900, messages: 38 },
+  { date: '04 May', adSpend: 1500, sales: 3800, messages: 68 },
+  { date: '05 May', adSpend: 1400, sales: 3600, messages: 61 },
+  { date: '06 May', adSpend: 900, sales: 2400, messages: 32 },
+  { date: '07 May', adSpend: 1600, sales: 4200, messages: 75 },
+  { date: '08 May', adSpend: 1450, sales: 3900, messages: 63 },
+  { date: '09 May', adSpend: 1300, sales: 3500, messages: 55 },
+  { date: '10 May', adSpend: 1550, sales: 4100, messages: 72 },
+  { date: '11 May', adSpend: 1000, sales: 2600, messages: 35 },
+  { date: '12 May', adSpend: 1700, sales: 4500, messages: 80 },
+  { date: '13 May', adSpend: 1500, sales: 4000, messages: 66 },
+  { date: '14 May', adSpend: 1200, sales: 3100, messages: 48 },
+  { date: '15 May', adSpend: 1800, sales: 4800, messages: 88 },
+  { date: '16 May', adSpend: 1600, sales: 4400, messages: 74 },
+  { date: '17 May', adSpend: 1100, sales: 2900, messages: 41 },
+  { date: '18 May', adSpend: 1750, sales: 4700, messages: 85 },
+  { date: '19 May', adSpend: 1400, sales: 3600, messages: 58 },
+  { date: '20 May', adSpend: 1900, sales: 5100, messages: 92 },
+  { date: '21 May', adSpend: 1650, sales: 4500, messages: 78 },
+  { date: '22 May', adSpend: 1300, sales: 3400, messages: 52 },
+  { date: '23 May', adSpend: 1550, sales: 4200, messages: 70 },
+  { date: '24 May', adSpend: 1000, sales: 2700, messages: 36 },
+  { date: '25 May', adSpend: 1700, sales: 4600, messages: 82 },
+  { date: '26 May', adSpend: 1450, sales: 3900, messages: 64 },
+  { date: '27 May', adSpend: 1200, sales: 3200, messages: 49 },
+  { date: '28 May', adSpend: 1600, sales: 4300, messages: 73 },
+  { date: '29 May', adSpend: 1350, sales: 3700, messages: 57 },
+  { date: '30 May', adSpend: 1800, sales: 4900, messages: 87 },
+];
+
+const topItems = [
+  { name: 'مشلتت وسط', category: 'مشلتت', qty: 4820, revenue: 144600, trend: 'up' as const },
+  { name: 'سجق', category: 'حادق', qty: 3650, revenue: 91250, trend: 'up' as const },
+  { name: 'مكس جبن', category: 'مشلتت', qty: 3180, revenue: 79500, trend: 'up' as const },
+  { name: 'دجاج فاهيتا', category: 'كريب', qty: 2890, revenue: 115600, trend: 'up' as const },
+  { name: 'مشلتت كبير', category: 'مشلتت', qty: 2640, revenue: 105600, trend: 'up' as const },
+  { name: 'ببروني', category: 'بيتزا', qty: 2410, revenue: 84350, trend: 'down' as const },
+  { name: 'حواوشي', category: 'حواوشي', qty: 2230, revenue: 66900, trend: 'down' as const },
+  { name: 'كريب زنجر', category: 'كريب', qty: 2150, revenue: 75250, trend: 'up' as const },
+  { name: 'مشلتت صغير', category: 'مشلتت', qty: 1980, revenue: 39600, trend: 'up' as const },
+  { name: 'نوتيلا', category: 'حلو', qty: 1860, revenue: 46500, trend: 'up' as const },
+  { name: 'كريب مشكل', category: 'كريب', qty: 1720, revenue: 60200, trend: 'down' as const },
+  { name: 'سجق رومي', category: 'حادق', qty: 1650, revenue: 49500, trend: 'up' as const },
+  { name: 'مكس لحوم', category: 'مشلتت', qty: 1580, revenue: 55300, trend: 'up' as const },
+  { name: 'تونة', category: 'حادق', qty: 1420, revenue: 42600, trend: 'down' as const },
+  { name: 'عسل وجبن', category: 'حلو', qty: 1350, revenue: 33750, trend: 'up' as const },
+];
+
+const forecastData = [
+  { day: '1', historical: 3200, forecast: null, lower: null, upper: null },
+  { day: '5', historical: 3400, forecast: null, lower: null, upper: null },
+  { day: '10', historical: 3100, forecast: null, lower: null, upper: null },
+  { day: '15', historical: 3800, forecast: null, lower: null, upper: null },
+  { day: '20', historical: 3600, forecast: null, lower: null, upper: null },
+  { day: '25', historical: 4100, forecast: null, lower: null, upper: null },
+  { day: '30', historical: 3900, forecast: null, lower: null, upper: null },
+  { day: '35', historical: 4200, forecast: null, lower: null, upper: null },
+  { day: '40', historical: 4000, forecast: null, lower: null, upper: null },
+  { day: '45', historical: 3800, forecast: null, lower: null, upper: null },
+  { day: '50', historical: 4300, forecast: null, lower: null, upper: null },
+  { day: '55', historical: 4100, forecast: null, lower: null, upper: null },
+  { day: '60', historical: 4500, forecast: 4500, lower: 4200, upper: 4800 },
+  { day: '65', historical: null, forecast: 4600, lower: 4250, upper: 4950 },
+  { day: '70', historical: null, forecast: 4700, lower: 4350, upper: 5050 },
+  { day: '75', historical: null, forecast: 4800, lower: 4400, upper: 5200 },
+  { day: '80', historical: null, forecast: 4750, lower: 4350, upper: 5150 },
+  { day: '85', historical: null, forecast: 4900, lower: 4450, upper: 5350 },
+  { day: '90', historical: null, forecast: 5000, lower: 4500, upper: 5500 },
+];
+
+const channelData = [
+  { name: 'مباشر', value: 45, fill: '#D4A844' },
+  { name: 'هنجر ستيشن', value: 35, fill: '#5B8FA8' },
+  { name: 'كيتا', value: 20, fill: '#D4652A' },
+];
+
+// Real heatmap data: each cell shows [color, salesAmount] for tooltip
+const seasonalityData = [
+  ['#E5B84B', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#E5B84B', '#E5B84B', '#D4A844', '#D4A844'],
+  ['#E5B84B', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#F5E6D0', '#D4A844', '#D4A844', '#D4A844', '#D4A844'],
+  ['#F5E6D0', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#F5E6D0', '#E5B84B', '#D4A844', '#E5B84B', '#D4A844'],
+  ['#F5E6D0', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#D4A844'],
+  ['#E5B84B', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#F5E6D0', '#D4A844', '#D4A844', '#C4943A', '#C4943A'],
+  ['#E5B84B', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#FDF6EC', '#E5B84B', '#E5B84B', '#D4A844', '#C4943A', '#C4943A', '#C4943A'],
+  ['#E5B84B', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#FDF6EC', '#F5E6D0', '#F5E6D0', '#E5B84B', '#D4A844', '#D4A844', '#D4A844', '#D4A844'],
+];
+
+// Real sales amounts for tooltips (2-hour bins, same structure as seasonalityData)
+const seasonalityValues = [
+  [14007, 2110, 680, 0, 1820, 3668, 7116, 7860, 17417, 17249, 22697, 23260],
+  [13869, 2872, 511, 0, 2521, 4094, 5771, 8359, 20269, 22859, 24465, 21736],
+  [10438, 1030, 140, 94, 2575, 4392, 7167, 7382, 14574, 19945, 19154, 21406],
+  [11005, 2510, 319, 0, 2282, 5991, 6651, 9247, 16904, 22260, 19897, 21821],
+  [19025, 1497, 275, 0, 3581, 4499, 8319, 7581, 24562, 25274, 28001, 32529],
+  [17345, 1384, 297, 0, 4021, 3666, 12677, 18624, 22719, 31024, 36640, 38738],
+  [12250, 1807, 412, 0, 1532, 5007, 9526, 12773, 21043, 20688, 24933, 25057],
+];
+
+const dayLabels = ['سبت', 'جمعة', 'خميس', 'أربعاء', 'ثلاثاء', 'إثنين', 'أحد'];
+const hourLabels = ['12ص', '2ص', '4ص', '6ص', '8ص', '10ص', '12م', '2م', '4م', '6م', '8م', '10م'];
+
+const daysOfWeek = [
+  { key: 'all_days', label: 'كل الأيام' },
+  { key: 'Sunday', label: 'الأحد' },
+  { key: 'Monday', label: 'الإثنين' },
+  { key: 'Tuesday', label: 'الثلاثاء' },
+  { key: 'Wednesday', label: 'الأربعاء' },
+  { key: 'Thursday', label: 'الخميس' },
+  { key: 'Friday', label: 'الجمعة' },
+  { key: 'Saturday', label: 'السبت' },
+];
+
+const monthsOfYear = [
+  { key: 'all_months', label: 'كل الشهور' },
+  { key: '2025-07', label: 'يوليو 2025' },
+  { key: '2025-08', label: 'أغسطس 2025' },
+  { key: '2025-09', label: 'سبتمبر 2025' },
+  { key: '2025-10', label: 'أكتوبر 2025' },
+  { key: '2025-11', label: 'نوفمبر 2025' },
+  { key: '2025-12', label: 'ديسمبر 2025' },
+  { key: '2026-01', label: 'يناير 2026' },
+  { key: '2026-02', label: 'فبراير 2026' },
+  { key: '2026-03', label: 'مارس 2026' },
+  { key: '2026-04', label: 'أبريل 2026' },
+  { key: '2026-05', label: 'مايو 2026' },
+];
+
+const yearsList = [
+  { key: '2025', label: '2025' },
+  { key: '2026', label: '2026' },
+];
+
+const weekDays = [
+  { key: 'all_weeks', label: 'كل الأسابيع' },
+  { key: 'week1', label: 'الأسبوع 1' },
+  { key: 'week2', label: 'الأسبوع 2' },
+  { key: 'week3', label: 'الأسبوع 3' },
+  { key: 'week4', label: 'الأسبوع 4' },
+];
+
+const periodTypes = [
+  { key: 'day', label: 'يوم' },
+  { key: 'week', label: 'أسبوع' },
+  { key: 'month', label: 'شهر' },
+  { key: 'year', label: 'سنة' },
+];
+
+/* ─────────────────────── REAL data lookup tables ─────────────────────── */
+
+const realMonthlySales = [
+  { month: 'Jul 2025', sales: 62165, orders: 1282 },
+  { month: 'Aug 2025', sales: 63784, orders: 1232 },
+  { month: 'Sep 2025', sales: 51593, orders: 1027 },
+  { month: 'Oct 2025', sales: 60301, orders: 1142 },
+  { month: 'Nov 2025', sales: 81671, orders: 1529 },
+  { month: 'Dec 2025', sales: 104572, orders: 1858 },
+  { month: 'Jan 2026', sales: 141734, orders: 2337 },
+  { month: 'Feb 2026', sales: 91576, orders: 1491 },
+  { month: 'Mar 2026', sales: 124537, orders: 1926 },
+  { month: 'Apr 2026', sales: 109969, orders: 1840 },
+  { month: 'May 2026', sales: 57799, orders: 1032 },
+];
+
+const realDayOfWeek: Record<string, { label: string; sales: number; orders: number }> = {
+  'Sunday':    { label: 'الأحد',    sales: 117885, orders: 2180 },
+  'Monday':    { label: 'الإثنين',  sales: 127326, orders: 2293 },
+  'Tuesday':   { label: 'الثلاثاء', sales: 108295, orders: 2011 },
+  'Wednesday': { label: 'الأربعاء', sales: 118889, orders: 2181 },
+  'Thursday':  { label: 'الخميس',  sales: 155142, orders: 2708 },
+  'Friday':    { label: 'الجمعة',  sales: 187136, orders: 3007 },
+  'Saturday':  { label: 'السبت',   sales: 135028, orders: 2316 },
+};
+
+const realYear: Record<string, { sales: number; orders: number }> = {
+  '2025': { sales: 424086, orders: 8070 },
+  '2026': { sales: 525614, orders: 8626 },
+};
+
+// Hourly data for chart (2-hour bins)
+const realHourlyChart = [
+  { month: '12-1 ص', sales: 97939, orders: 1769 },
+  { month: '2-3 ص', sales: 13211, orders: 237 },
+  { month: '4-5 ص', sales: 2776, orders: 53 },
+  { month: '6-7 ص', sales: 94, orders: 1 },
+  { month: '8-9 ص', sales: 18333, orders: 330 },
+  { month: '10-11 ص', sales: 19317, orders: 617 },
+  { month: '12-1 م', sales: 51527, orders: 990 },
+  { month: '2-3 م', sales: 39787, orders: 708 },
+  { month: '4-5 م', sales: 137487, orders: 2362 },
+  { month: '6-7 م', sales: 146226, orders: 2400 },
+  { month: '8-9 م', sales: 175787, orders: 3056 },
+  { month: '10-11 م', sales: 184545, orders: 3358 },
+];
+
+function getFilteredData(period: string, value: string) {
+  let chartData = realMonthlySales;
+  let adCorr = adSalesCorrelation;
+  let kpiData = { totalSales: 949700, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
+  let spark = kpiSparkline;
+  let subtitle = 'Jul 2025 — May 2026';
+
+  switch (period) {
+    case 'day': {
+      // Look up the specific day's REAL data
+      const dayKey = value === 'all_days' ? null : value;
+      const dayData = dayKey ? realDayOfWeek[dayKey] : null;
+      subtitle = dayData ? `يوم ${dayData.label}` : 'كل الأيام — متوسط';
+      // Use hourly chart for daily view
+      chartData = realHourlyChart;
+      if (dayData) {
+        kpiData = {
+          totalSales: dayData.sales,
+          totalOrders: dayData.orders,
+          avgOrder: Math.round(dayData.sales / dayData.orders * 10) / 10,
+          adSpend: Math.round(dayData.sales * 0.05),
+        };
+      } else {
+        // Average across all days
+        kpiData = { totalSales: 135658, totalOrders: 2398, avgOrder: 56.6, adSpend: 6783 };
+      }
+      spark = [40, 15, 5, 1, 10, 15, 30, 25, 55, 60, 75, 80];
+      adCorr = adSalesCorrelation.slice(-7);
+      break;
+    }
+    case 'week': {
+      // Show daily breakdown for the week
+      chartData = [
+        { month: 'الأحد', sales: 117885, orders: 2180 },
+        { month: 'الإثنين', sales: 127326, orders: 2293 },
+        { month: 'الثلاثاء', sales: 108295, orders: 2011 },
+        { month: 'الأربعاء', sales: 118889, orders: 2181 },
+        { month: 'الخميس', sales: 155142, orders: 2708 },
+        { month: 'الجمعة', sales: 187136, orders: 3007 },
+        { month: 'السبت', sales: 135028, orders: 2316 },
+      ];
+      subtitle = value === 'all_weeks' ? 'كل الأيام' : 'أسبوع محدد';
+      kpiData = { totalSales: 949701, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
+      spark = [42, 45, 40, 44, 58, 70, 50];
+      adCorr = adSalesCorrelation.slice(-14);
+      break;
+    }
+    case 'month': {
+      if (value !== 'all_months') {
+        // Direct lookup by month key → find matching month data
+        const monthMap: Record<string, string> = {
+          '2025-07': 'Jul 2025', '2025-08': 'Aug 2025', '2025-09': 'Sep 2025',
+          '2025-10': 'Oct 2025', '2025-11': 'Nov 2025', '2025-12': 'Dec 2025',
+          '2026-01': 'Jan 2026', '2026-02': 'Feb 2026', '2026-03': 'Mar 2026',
+          '2026-04': 'Apr 2026', '2026-05': 'May 2026',
+        };
+        const monthLabel = monthMap[value];
+        const m = realMonthlySales.find(x => x.month === monthLabel);
+        if (m) {
+          chartData = [m];
+          subtitle = monthLabel;
+          kpiData = {
+            totalSales: m.sales,
+            totalOrders: m.orders,
+            avgOrder: Math.round(m.sales / m.orders * 10) / 10,
+            adSpend: Math.round(m.sales * 0.05),
+          };
+        }
+      } else {
+        chartData = realMonthlySales;
+        subtitle = 'Jul 2025 — May 2026';
+        kpiData = { totalSales: 949700, totalOrders: 16696, avgOrder: 56.9, adSpend: 45230 };
+      }
+      spark = kpiSparkline;
+      adCorr = value === 'all_months' ? adSalesCorrelation : adSalesCorrelation.slice(-30);
+      break;
+    }
+    case 'year': {
+      const yr = realYear[value] || realYear['2026'];
+      if (value === '2025') {
+        chartData = realMonthlySales.slice(0, 6);
+      } else {
+        chartData = realMonthlySales.slice(6);
+      }
+      subtitle = value;
+      kpiData = {
+        totalSales: yr.sales,
+        totalOrders: yr.orders,
+        avgOrder: Math.round(yr.sales / yr.orders * 10) / 10,
+        adSpend: value === '2025' ? 0 : 45230,
+      };
+      spark = value === '2025' ? [30, 35, 38, 45, 50, 55] : kpiSparkline.slice(5);
+      adCorr = adSalesCorrelation;
+      break;
+    }
+  }
+
+  return { chartData, adCorr, kpiData, spark, subtitle };
+}
+
+/* ─────────────────────── sidebar ─────────────────────── */
+
+const navItems = [
+  { icon: LayoutDashboard, label: 'لوحة التحكم', path: '/dashboard', active: true },
+  { icon: ShoppingCart, label: 'المبيعات', path: '/dashboard', active: false },
+  { icon: Megaphone, label: 'الإعلانات', path: '/dashboard', active: false },
+  { icon: TrendingUp, label: 'التنبؤات', path: '/dashboard', active: false },
+  { icon: ClipboardList, label: 'الطلبات', path: '/operations', active: false },
+  { icon: Users, label: 'إدارة العملاء', path: '/dashboard', active: false },
+  { icon: FileUp, label: 'رفع الفواتير', path: '/data-processor', active: false },
+];
+
+function AdminSidebar() {
+  const navigate = useNavigate();
+
+  return (
+    <aside
+      dir="rtl"
+      className="fixed top-0 right-0 h-full w-[280px] bg-crust-dark z-40 flex flex-col overflow-y-auto"
+    >
+      {/* Logo */}
+      <div className="flex items-center justify-center py-6 border-b border-ghee-gold/15">
+        <img src="/logo-white.png" alt="logo" className="w-14 h-14 rounded-full object-cover" />
+      </div>
+
+      {/* Nav Items */}
+      <nav className="flex-1 py-6 px-4 space-y-1">
+        {navItems.map((item) => (
+          <button
+            key={item.label}
+            onClick={() => navigate(item.path)}
+            className={cn(
+              'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-tajawal font-semibold transition-all duration-200',
+              item.active
+                ? 'bg-ghee-gold/15 text-ghee-gold border-r-2 border-ghee-gold'
+                : 'text-dough-cream/70 hover:text-dough-cream hover:bg-white/5'
+            )}
+          >
+            <item.icon className="w-[22px] h-[22px] shrink-0" />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      {/* User Profile */}
+      <div className="p-4 border-t border-ghee-gold/15">
+        <div className="flex items-center gap-3 px-3 py-3">
+          <div className="w-10 h-10 rounded-full bg-ghee-gold/20 flex items-center justify-center text-ghee-gold font-cairo font-bold text-sm">
+            أ م
+          </div>
+          <div className="text-right">
+            <p className="text-dough-cream font-tajawal font-semibold text-sm">أحمد محمد</p>
+            <p className="text-dough-cream/50 font-tajawal text-xs">مدير النظام</p>
+          </div>
+        </div>
+        <button className="w-full flex items-center gap-2 px-3 py-2 mt-1 text-error-red/80 hover:text-error-red text-sm font-tajawal transition-colors">
+          <LogOut className="w-4 h-4" />
+          <span>تسجيل الخروج</span>
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+/* ─────────────────────── top bar ─────────────────────── */
+
+interface TopBarProps {
+  activePeriod: string;
+  activeValue: string;
+  onPeriodChange: (period: string) => void;
+  onValueChange: (value: string) => void;
+  onDownload: () => void;
+}
+
+function TopBar({ activePeriod, activeValue, onPeriodChange, onValueChange, onDownload }: TopBarProps) {
+  const today = 'الثلاثاء، 20 مايو 2026';
+
+  const getOptions = () => {
+    switch (activePeriod) {
+      case 'day': return daysOfWeek;
+      case 'week': return weekDays;
+      case 'month': return monthsOfYear;
+      case 'year': return yearsList;
+      default: return monthsOfYear;
+    }
+  };
+
+  const options = getOptions();
+
+  return (
+    <div
+      dir="rtl"
+      className="h-16 bg-dough-cream border-b border-warm-brown/10 flex items-center justify-between px-6 sticky top-0 z-30"
+    >
+      {/* Title + Date */}
+      <div className="flex items-center gap-4">
+        <h1 className="font-cairo font-bold text-xl text-crust-dark">لوحة التحكم</h1>
+        <span className="text-warm-brown text-sm font-tajawal">{today}</span>
+      </div>
+
+      {/* Date Period Selector */}
+      <div className="hidden md:flex items-center gap-3">
+        {/* Period type tabs */}
+        <div className="flex items-center bg-surface-cream rounded-full p-1 gap-1">
+          {periodTypes.map((pt) => (
+            <button
+              key={pt.key}
+              onClick={() => onPeriodChange(pt.key)}
+              className={cn(
+                'relative px-4 py-1.5 rounded-full text-sm font-tajawal font-semibold transition-all duration-200',
+                activePeriod === pt.key
+                  ? 'text-crust-dark bg-ghee-gold shadow-gold'
+                  : 'text-warm-brown hover:text-crust-dark'
+              )}
+            >
+              {pt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Specific value dropdown */}
+        <select
+          value={activeValue}
+          onChange={(e) => onValueChange(e.target.value)}
+          className="px-4 py-1.5 rounded-full text-sm font-tajawal font-semibold bg-white border border-ghee-gold/30 text-crust-dark focus:outline-none focus:ring-2 focus:ring-ghee-gold/40 cursor-pointer"
+          style={{ direction: 'rtl' }}
+        >
+          {options.map((opt) => (
+            <option key={opt.key} value={opt.key}>{opt.label}</option>
+          ))}
+        </select>
+
+        {/* Download button */}
+        <button
+          onClick={onDownload}
+          className="flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-tajawal font-semibold bg-sage-green text-white hover:bg-sage-green/90 transition-all"
+          title="تحميل البيانات كملف Excel"
+        >
+          <Download className="w-4 h-4" />
+          <span>تحميل Excel</span>
+        </button>
+      </div>
+
+      {/* Right Actions */}
+      <div className="flex items-center gap-3">
+        <button className="p-2 rounded-xl text-warm-brown hover:text-ghee-gold hover:bg-ghee-gold/10 transition-colors">
+          <Search className="w-5 h-5" />
+        </button>
+        <button className="relative p-2 rounded-xl text-warm-brown hover:text-ghee-gold hover:bg-ghee-gold/10 transition-colors">
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-0.5 left-0.5 w-4 h-4 bg-error-red text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+            3
+          </span>
+        </button>
+        <button className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-cream hover:bg-ghee-gold/10 transition-colors">
+          <div className="w-8 h-8 rounded-full bg-ghee-gold/20 flex items-center justify-center text-crust-dark font-cairo font-bold text-xs">
+            أ م
+          </div>
+          <ChevronDown className="w-4 h-4 text-warm-brown" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────── KPI card ─────────────────────── */
+
+interface KPICardProps {
+  label: string;
+  value: number;
+  suffix?: string;
+  prefix?: string;
+  change: number;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  accent: string;
+  sparkline?: number[];
+  index: number;
+  decimals?: number;
+}
+
+function KPICard({ label, value, suffix, prefix, change, icon: Icon, accent, sparkline, index, decimals = 0 }: KPICardProps) {
+  const isPositive = change >= 0;
+  const sparkPoints = useMemo(() => {
+    if (!sparkline || sparkline.length === 0) return '';
+    const max = Math.max(...sparkline);
+    const min = Math.min(...sparkline);
+    const range = max - min || 1;
+    return sparkline
+      .map((v, i) => {
+        const x = (i / (sparkline.length - 1)) * 80 + 10;
+        const y = 50 - ((v - min) / range) * 40;
+        return `${x},${y}`;
+      })
+      .join(' ');
+  }, [sparkline]);
+
+  return (
+    <motion.div
+      custom={index}
+      initial="hidden"
+      animate="visible"
+      variants={fadeUp}
+      className="bg-white/72 backdrop-blur-[20px] border border-ghee-gold/25 rounded-xl p-5 shadow-glass"
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center"
+          style={{ backgroundColor: `${accent}18` }}
+        >
+          <Icon className="w-5 h-5" style={{ color: accent }} />
+        </div>
+        <span
+          className={cn(
+            'flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full',
+            isPositive ? 'bg-sage-green/15 text-sage-green' : 'bg-error-red/15 text-error-red'
+          )}
+        >
+          {isPositive ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+          {Math.abs(change)}%
+        </span>
+      </div>
+      <div className="font-inter font-bold text-metric-display text-crust-dark mb-1">
+        {prefix}
+        <CountUp end={value} duration={1.5} separator="," decimals={decimals} />
+        {suffix}
+      </div>
+      <p className="text-warm-brown text-sm font-tajawal mb-3">{label}</p>
+      {sparkline && (
+        <svg viewBox="0 0 100 60" className="w-full h-12" preserveAspectRatio="none">
+          <polyline
+            points={sparkPoints}
+            fill="none"
+            stroke={accent}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
+    </motion.div>
+  );
+}
+
+/* ─────────────────────── custom chart tooltip ─────────────────────── */
+
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; name: string; color: string }>; label?: string }) {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div className="bg-white/95 backdrop-blur-md border border-ghee-gold/30 rounded-xl px-4 py-3 shadow-lg">
+      <p className="font-tajawal font-semibold text-crust-dark text-sm mb-1">{label}</p>
+      {payload.map((entry, i) => (
+        <div key={i} className="flex items-center gap-2 text-xs font-tajawal">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+          <span className="text-warm-brown">{entry.name}:</span>
+          <span className="text-crust-dark font-bold">
+            {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─────────────────────── table sort header ─────────────────────── */
+
+function SortIcon({ field, sortField, sortDir }: { field: string; sortField: string; sortDir: 'asc' | 'desc' }) {
+  if (sortField !== field) return <Minus className="w-3 h-3 text-warm-brown/40" />;
+  return sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-ghee-gold" /> : <ArrowDown className="w-3 h-3 text-ghee-gold" />;
+}
+
+/* ─────────────────────── Excel download helper ─────────────────────── */
+
+function handleDownloadFactory(
+  activePeriod: string,
+  activeValue: string,
+  filteredSales: Array<{ month: string; sales: number; orders: number }>,
+  filteredKPIs: { totalSales: number; totalOrders: number; avgOrder: number; adSpend: number },
+  filteredAdCorrelation: Array<{ date: string; adSpend: number; sales: number; messages: number }>
+) {
+  return function handleDownload() {
+    // Get period label
+    const periodLabel = periodTypes.find(p => p.key === activePeriod)?.label || activePeriod;
+    const valueLabel = 
+      activePeriod === 'day' ? daysOfWeek.find(d => d.key === activeValue)?.label :
+      activePeriod === 'week' ? weekDays.find(w => w.key === activeValue)?.label :
+      activePeriod === 'month' ? monthsOfYear.find(m => m.key === activeValue)?.label :
+      yearsList.find(y => y.key === activeValue)?.label || activeValue;
+
+    // Build CSV content
+    let csv = '\uFEFF'; // BOM for Arabic
+    csv += `تقرير فطير شرقي - ${periodLabel}: ${valueLabel}\n`;
+    csv += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA')}\n\n`;
+
+    // Section 1: KPI Summary
+    csv += '=== ملخص المؤشرات ===\n';
+    csv += 'المؤشر,القيمة\n';
+    csv += `إجمالي المبيعات,${filteredKPIs.totalSales} ر.س\n`;
+    csv += `عدد الطلبات,${filteredKPIs.totalOrders}\n`;
+    csv += `متوسط قيمة الطلب,${filteredKPIs.avgOrder} ر.س\n`;
+    csv += `تكلفة الإعلانات,${filteredKPIs.adSpend} ر.س\n\n`;
+
+    // Section 2: Sales Data
+    csv += '=== بيانات المبيعات ===\n';
+    csv += 'الفترة,المبيعات (ر.س),عدد الطلبات\n';
+    filteredSales.forEach(row => {
+      csv += `${row.month},${row.sales},${row.orders}\n`;
+    });
+    csv += '\n';
+
+    // Section 3: Advertising Data
+    csv += '=== بيانات الإعلانات ===\n';
+    csv += 'التاريخ,إنفاق إعلاني,مبيعات,محادثات\n';
+    filteredAdCorrelation.forEach(row => {
+      csv += `${row.date},${row.adSpend},${row.sales},${row.messages}\n`;
+    });
+    csv += '\n';
+
+    // Section 4: Top Items
+    csv += '=== الأصناف الأكثر مبيعاً ===\n';
+    csv += 'الصنف,الفئة,الكمية,الإيرادات,الاتجاه\n';
+    topItems.forEach(item => {
+      csv += `${item.name},${item.category},${item.qty},${item.revenue},${item.trend === 'up' ? 'صاعد' : 'هابط'}\n`;
+    });
+
+    // Download
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `fetir-sharqi-report-${activePeriod}-${activeValue}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+}
+
+/* ─────────────────────── main dashboard ─────────────────────── */
+
+export default function Dashboard() {
+  const [activePeriod, setActivePeriod] = useState('month');
+  const [activeValue, setActiveValue] = useState('2026-05');
+  const [sortField, setSortField] = useState<'qty' | 'revenue'>('revenue');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
+  const toggleSort = useCallback((field: 'qty' | 'revenue') => {
+    setSortField((prev) => {
+      if (prev === field) {
+        setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+        return prev;
+      }
+      setSortDir('desc');
+      return field;
+    });
+  }, []);
+
+  const sortedItems = useMemo(() => {
+    const sorted = [...topItems].sort((a, b) => {
+      const diff = a[sortField] - b[sortField];
+      return sortDir === 'asc' ? diff : -diff;
+    });
+    return sorted;
+  }, [sortField, sortDir]);
+
+  // Filtered data based on selected period and value
+  const { chartData: filteredSales, adCorr: filteredAdCorrelation, kpiData: filteredKPIs, spark: filteredSparkline, subtitle: chartSubtitle } = useMemo(() => getFilteredData(activePeriod, activeValue), [activePeriod, activeValue]);
+
+  const handleDownload = useMemo(() => handleDownloadFactory(activePeriod, activeValue, filteredSales, filteredKPIs, filteredAdCorrelation), [activePeriod, activeValue, filteredSales, filteredKPIs, filteredAdCorrelation]);
+
+  return (
+    <div dir="rtl" className="min-h-[100dvh] bg-dough-cream">
+      <AdminSidebar />
+
+      {/* Main content offset by sidebar */}
+      <div className="mr-[280px] min-h-[100dvh] flex flex-col">
+        <TopBar activePeriod={activePeriod} activeValue={activeValue} onPeriodChange={setActivePeriod} onValueChange={setActiveValue} onDownload={handleDownload} />
+
+        {/* ─── KPI Cards Row ─── */}
+        <section className="p-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          <KPICard
+            label="إجمالي المبيعات"
+            value={filteredKPIs.totalSales}
+            suffix=" ر.س"
+            change={12.5}
+            icon={TrendingUp}
+            accent="#D4A844"
+            sparkline={filteredSparkline.map((v) => v * 1000)}
+            index={0}
+          />
+          <KPICard
+            label="عدد الطلبات"
+            value={filteredKPIs.totalOrders}
+            change={8.3}
+            icon={ShoppingCart}
+            accent="#6B7F59"
+            index={1}
+          />
+          <KPICard
+            label="متوسط قيمة الطلب"
+            value={filteredKPIs.avgOrder}
+            suffix=" ر.س"
+            change={3.2}
+            icon={ClipboardList}
+            accent="#D4652A"
+            index={2}
+            decimals={2}
+          />
+          <KPICard
+            label="تكلفة الإعلانات"
+            value={filteredKPIs.adSpend}
+            suffix=" ر.س"
+            change={-5.1}
+            icon={Megaphone}
+            accent="#5B8FA8"
+            index={3}
+          />
+        </section>
+
+        {/* ─── Revenue Analytics + Sales Breakdown ─── */}
+        <section className="px-6 pb-6">
+          <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+            {/* Revenue Trend Chart */}
+            <motion.div
+              custom={4}
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              className="xl:col-span-3 bg-white/72 backdrop-blur-[20px] border border-ghee-gold/25 rounded-xl p-6 shadow-glass"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-cairo font-bold text-lg text-crust-dark">تحليل المبيعات</h3>
+                  <p className="text-warm-brown text-xs font-tajawal mt-0.5">{chartSubtitle}</p>
+                </div>
+                <button className="p-2 rounded-lg text-warm-brown hover:text-ghee-gold hover:bg-ghee-gold/10 transition-colors">
+                  <Download className="w-4 h-4" />
+                </button>
+              </div>
+              <ResponsiveContainer width="100%" height={320}>
+                <AreaChart data={filteredSales} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#D4A844" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#D4A844" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(140,94,60,0.1)" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 11, fontFamily: 'Inter', fill: '#8C5E3C' }}
+                    axisLine={{ stroke: 'rgba(140,94,60,0.15)' }}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fontFamily: 'Inter', fill: '#8C5E3C' }}
+                    axisLine={{ stroke: 'rgba(140,94,60,0.15)' }}
+                    tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}K`}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="sales"
+                    name="المبيعات (ر.س)"
+                    stroke="#D4A844"
+                    strokeWidth={2}
+                    fill="url(#salesGrad)"
+                    animationDuration={1200}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </motion.div>
+
+            {/* Sales Breakdown */}
+            <motion.div
+              custom={5}
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              className="xl:col-span-2 bg-white/72 backdrop-blur-[20px] border border-ghee-gold/25 rounded-xl p-6 shadow-glass"
+            >
+              <h3 className="font-cairo font-bold text-lg text-crust-dark mb-4">توزيع المبيعات</h3>
+
+              {/* Order Type Pie */}
+              <div className="mb-6">
+                <p className="text-warm-brown text-xs font-tajawal font-semibold mb-2">حسب نوع الطلب</p>
+                <ResponsiveContainer width="100%" height={180}>
+                  <PieChart>
+                    <Pie
+                      data={orderTypeData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={45}
+                      outerRadius={70}
+                      paddingAngle={3}
+                      dataKey="value"
+                      animationDuration={1000}
+                    >
+                      {orderTypeData.map((entry, i) => (
+                        <Cell key={`ot-${i}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number) => [`${value}%`, '']}
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: '1px solid rgba(212,168,68,0.3)',
+                        fontFamily: 'Tajawal',
+                      }}
+                    />
+                    <Legend
+                      verticalAlign="middle"
+                      align="left"
+                      layout="vertical"
+                      wrapperStyle={{ fontSize: 12, fontFamily: 'Tajawal', right: 0 }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Payment Type Pie */}
+              <div>
+                <p className="text-warm-brown text-xs font-tajawal font-semibold mb-2">حسب طريقة الدفع</p>
+                <ResponsiveContainer width="100%" height={180}>
+                  <PieChart>
+                    <Pie
+                      data={paymentTypeData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={45}
+                      outerRadius={70}
+                      paddingAngle={3}
+                      dataKey="value"
+                      animationDuration={1000}
+                      animationBegin={300}
+                    >
+                      {paymentTypeData.map((entry, i) => (
+                        <Cell key={`pt-${i}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number) => [`${value}%`, '']}
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: '1px solid rgba(212,168,68,0.3)',
+                        fontFamily: 'Tajawal',
+                      }}
+                    />
+                    <Legend
+                      verticalAlign="middle"
+                      align="left"
+                      layout="vertical"
+                      wrapperStyle={{ fontSize: 12, fontFamily: 'Tajawal', right: 0 }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ─── Advertising vs Sales Correlation ─── */}
+        <section className="px-6 pb-6">
+          <motion.div
+            custom={6}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="bg-surface-cream rounded-xl p-6 shadow-glass"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-cairo font-bold text-lg text-crust-dark">تأثير الإعلانات على المبيعات</h3>
+                <p className="text-warm-brown text-xs font-tajawal mt-1">
+                  يُظهر هذا الرسم العلاقة بين الإنفاق الإعلاني ونسبة المبيعات عبر الزمن
+                </p>
+              </div>
+              <button className="p-2 rounded-lg text-warm-brown hover:text-ghee-gold hover:bg-ghee-gold/10 transition-colors">
+                <Download className="w-4 h-4" />
+              </button>
+            </div>
+
+            <ResponsiveContainer width="100%" height={350}>
+              <ComposedChart data={filteredAdCorrelation} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(140,94,60,0.1)" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10, fontFamily: 'Inter', fill: '#8C5E3C' }}
+                  axisLine={{ stroke: 'rgba(140,94,60,0.15)' }}
+                />
+                <YAxis
+                  yAxisId="left"
+                  tick={{ fontSize: 10, fontFamily: 'Inter', fill: '#8C5E3C' }}
+                  axisLine={{ stroke: 'rgba(140,94,60,0.15)' }}
+                  tickFormatter={(v: number) => `${(v / 1000).toFixed(1)}K`}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="left"
+                  tick={{ fontSize: 10, fontFamily: 'Inter', fill: '#8C5E3C' }}
+                  axisLine={{ stroke: 'rgba(140,94,60,0.15)' }}
+                  tickFormatter={(v: number) => `${v}`}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend
+                  wrapperStyle={{ fontFamily: 'Tajawal', fontSize: 12 }}
+                />
+                <Bar
+                  yAxisId="left"
+                  dataKey="adSpend"
+                  name="الإنفاق الإعلاني"
+                  fill="#D4652A"
+                  fillOpacity={0.5}
+                  radius={[4, 4, 0, 0]}
+                  animationDuration={1000}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="sales"
+                  name="المبيعات"
+                  stroke="#D4A844"
+                  strokeWidth={2.5}
+                  dot={false}
+                  animationDuration={1200}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="messages"
+                  name="المحادثات"
+                  stroke="#6B7F59"
+                  strokeWidth={2}
+                  dot={{ r: 3, fill: '#6B7F59' }}
+                  strokeDasharray="5 5"
+                  animationDuration={1400}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+
+            {/* Insights Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              <div className="bg-sage-green/10 border border-sage-green/20 rounded-xl p-4">
+                <p className="text-sage-green font-cairo font-bold text-base">أعلى عائد إعلاني: 5.2×</p>
+                <p className="text-crust-dark/70 text-xs font-tajawal mt-1">كل 1 ر.س إعلانات = 5.2 ر.س مبيعات</p>
+              </div>
+              <div className="bg-ghee-gold/10 border border-ghee-gold/20 rounded-xl p-4">
+                <p className="text-ghee-gold font-cairo font-bold text-base">أفضل يوم: الأربعاء</p>
+                <p className="text-crust-dark/70 text-xs font-tajawal mt-1">الإعلانات الأربعاء تحقق أعلى مبيعات</p>
+              </div>
+              <div className="bg-chart-blue/10 border border-chart-blue/20 rounded-xl p-4">
+                <p className="text-chart-blue font-cairo font-bold text-base">تكلفة المحادثة: 2.4 ر.س</p>
+                <p className="text-crust-dark/70 text-xs font-tajawal mt-1">متوسط تكلفة بدء محادثة</p>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ─── Top Items Table ─── */}
+        <section className="px-6 pb-6">
+          <motion.div
+            custom={7}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="bg-white/72 backdrop-blur-[20px] border border-ghee-gold/25 rounded-xl p-6 shadow-glass"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-cairo font-bold text-lg text-crust-dark">الأصناف الأكثر مبيعاً</h3>
+              <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-ghee-gold/30 text-warm-brown hover:text-ghee-gold hover:border-ghee-gold transition-colors text-sm font-tajawal">
+                <Download className="w-4 h-4" />
+                تصدير
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-crust-dark text-dough-cream">
+                    <th className="px-4 py-3 text-right text-sm font-tajawal font-semibold rounded-tr-xl">الصنف</th>
+                    <th className="px-4 py-3 text-right text-sm font-tajawal font-semibold">الفئة</th>
+                    <th
+                      className="px-4 py-3 text-right text-sm font-tajawal font-semibold cursor-pointer hover:text-ghee-gold transition-colors"
+                      onClick={() => toggleSort('qty')}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        الكمية المباعة
+                        <SortIcon field="qty" sortField={sortField} sortDir={sortDir} />
+                      </span>
+                    </th>
+                    <th
+                      className="px-4 py-3 text-right text-sm font-tajawal font-semibold cursor-pointer hover:text-ghee-gold transition-colors"
+                      onClick={() => toggleSort('revenue')}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        الإيرادات (ر.س)
+                        <SortIcon field="revenue" sortField={sortField} sortDir={sortDir} />
+                      </span>
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-tajawal font-semibold rounded-tl-xl">الاتجاه</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedItems.map((item, i) => (
+                    <tr
+                      key={item.name}
+                      className={cn(
+                        'border-b border-warm-brown/10 hover:bg-ghee-gold/5 transition-colors',
+                        i % 2 === 0 ? 'bg-dough-cream/50' : 'bg-white'
+                      )}
+                    >
+                      <td className="px-4 py-3 text-sm font-tajawal font-semibold text-crust-dark">{item.name}</td>
+                      <td className="px-4 py-3 text-sm font-tajawal text-warm-brown">{item.category}</td>
+                      <td className="px-4 py-3 text-sm font-inter text-crust-dark">{item.qty.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-sm font-inter font-semibold text-crust-dark">
+                        {item.revenue.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3">
+                        {item.trend === 'up' ? (
+                          <span className="inline-flex items-center gap-1 text-sage-green">
+                            <TrendingUp className="w-4 h-4" />
+                            <span className="text-xs font-bold">صاعد</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-error-red">
+                            <TrendingDown className="w-4 h-4" />
+                            <span className="text-xs font-bold">هابط</span>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ─── Predictive Forecasting ─── */}
+        <section className="px-6 pb-6">
+          <motion.div
+            custom={8}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="bg-crust-dark rounded-xl p-6 shadow-glass"
+          >
+            {/* Section Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <h3 className="font-cairo font-bold text-section-title text-dough-cream">التنبؤ بالمبيعات</h3>
+                  <span className="px-3 py-1 bg-ghee-gold/20 text-ghee-gold text-xs font-bold rounded-full">
+                    مدعوم بالتحليل التنبؤي
+                  </span>
+                </div>
+                <p className="text-ghee-gold/80 text-sm font-tajawal">
+                  تحليل الذكاء الاصطناعي للأنماط والتوقعات المستقبلية
+                </p>
+              </div>
+            </div>
+
+            {/* Forecast Chart */}
+            <div className="bg-white/5 border border-ghee-gold/15 rounded-xl p-4 mb-6">
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={forecastData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#D4A844" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#D4A844" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6B7F59" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#6B7F59" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(140,94,60,0.15)" />
+                  <XAxis
+                    dataKey="day"
+                    tick={{ fontSize: 10, fill: '#FDF6EC', opacity: 0.6 }}
+                    axisLine={{ stroke: 'rgba(212,168,68,0.2)' }}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: '#FDF6EC', opacity: 0.6 }}
+                    axisLine={{ stroke: 'rgba(212,168,68,0.2)' }}
+                    tickFormatter={(v: number) => `${(v / 1000).toFixed(1)}K`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(43,33,24,0.95)',
+                      border: '1px solid rgba(212,168,68,0.3)',
+                      borderRadius: 12,
+                      fontFamily: 'Tajawal',
+                      color: '#FDF6EC',
+                    }}
+                    itemStyle={{ color: '#FDF6EC' }}
+                  />
+                  <Legend
+                    wrapperStyle={{ fontFamily: 'Tajawal', fontSize: 12, color: '#FDF6EC' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="historical"
+                    name="المبيعات الفعلية"
+                    stroke="#D4A844"
+                    strokeWidth={2}
+                    fill="url(#histGrad)"
+                    connectNulls={false}
+                    animationDuration={1000}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="forecast"
+                    name="التوقع"
+                    stroke="#6B7F59"
+                    strokeWidth={2.5}
+                    strokeDasharray="8 4"
+                    fill="url(#forecastGrad)"
+                    connectNulls={false}
+                    animationDuration={1500}
+                  />
+                  {/* Lower confidence */}
+                  <Area
+                    type="monotone"
+                    dataKey="lower"
+                    name="الحد الأدنى"
+                    stroke="none"
+                    fill="#6B7F59"
+                    fillOpacity={0.08}
+                    connectNulls={false}
+                  />
+                  {/* Upper confidence line (for fill stacking we use upper data directly) */}
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Predictions Cards + Recommendations */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Key Predictions */}
+              <div className="bg-white/5 border border-ghee-gold/15 rounded-xl p-5">
+                <h4 className="font-cairo font-bold text-base text-dough-cream mb-4">التوقعات الرئيسية</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-crust-dark border border-ghee-gold/20 rounded-lg p-3">
+                    <p className="text-dough-cream/50 text-xs font-tajawal mb-1">المتوقع الشهري</p>
+                    <p className="text-ghee-gold font-inter font-bold text-xl">1,250 طلب</p>
+                  </div>
+                  <div className="bg-crust-dark border border-ghee-gold/20 rounded-lg p-3">
+                    <p className="text-dough-cream/50 text-xs font-tajawal mb-1">أفضل يوم</p>
+                    <p className="text-ghee-gold font-inter font-bold text-xl">الخميس</p>
+                  </div>
+                  <div className="bg-crust-dark border border-ghee-gold/20 rounded-lg p-3">
+                    <p className="text-dough-cream/50 text-xs font-tajawal mb-1">أفضل ساعة</p>
+                    <p className="text-ghee-gold font-inter font-bold text-xl">8-10 مساءً</p>
+                  </div>
+                  <div className="bg-crust-dark border border-ghee-gold/20 rounded-lg p-3">
+                    <p className="text-dough-cream/50 text-xs font-tajawal mb-1">نمو متوقع</p>
+                    <p className="text-sage-green font-inter font-bold text-xl">+15%</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recommendation */}
+              <div className="bg-gradient-to-br from-ghee-gold/20 to-ember-orange/10 border border-ghee-gold/30 rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Lightbulb className="w-5 h-5 text-ghee-gold" />
+                  <h4 className="font-cairo font-bold text-base text-dough-cream">توصيات ذكية</h4>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2 text-sm font-tajawal text-dough-cream/80">
+                    <span className="w-1.5 h-1.5 rounded-full bg-ghee-gold mt-2 shrink-0" />
+                    زيادة الإعلانات يوم الأربعاء 25% — توقع ارتفاع مبيعات 18%
+                  </li>
+                  <li className="flex items-start gap-2 text-sm font-tajawal text-dough-cream/80">
+                    <span className="w-1.5 h-1.5 rounded-full bg-ghee-gold mt-2 shrink-0" />
+                    ترقية كريب الدجاج رانش في المنيو — الطلب عليه في ارتفاع
+                  </li>
+                  <li className="flex items-start gap-2 text-sm font-tajawal text-dough-cream/80">
+                    <span className="w-1.5 h-1.5 rounded-full bg-ghee-gold mt-2 shrink-0" />
+                    تفعيل عرض "فطيرتين بسعر واحد" أيام الأحد-الثلاثاء (أقل أيام المبيعات)
+                  </li>
+                  <li className="flex items-start gap-2 text-sm font-tajawal text-dough-cream/80">
+                    <span className="w-1.5 h-1.5 rounded-full bg-ghee-gold mt-2 shrink-0" />
+                    زيادة الإعلانات يومي الأحد-الاثنين — أقل أيام المبيعات وفرصة للنمو
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ─── Customer Channel + Payment ─── */}
+        <section className="px-6 pb-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {/* Channel Analysis */}
+            <motion.div
+              custom={9}
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              className="bg-white/72 backdrop-blur-[20px] border border-ghee-gold/25 rounded-xl p-6 shadow-glass"
+            >
+              <h3 className="font-cairo font-bold text-lg text-crust-dark mb-4">تحليل العملاء</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={channelData} layout="vertical" margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(140,94,60,0.1)" horizontal={false} />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 11, fill: '#8C5E3C' }}
+                    axisLine={{ stroke: 'rgba(140,94,60,0.15)' }}
+                    tickFormatter={(v: number) => `${v}%`}
+                  />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tick={{ fontSize: 12, fontFamily: 'Tajawal', fill: '#2B2118' }}
+                    axisLine={{ stroke: 'rgba(140,94,60,0.15)' }}
+                    width={80}
+                  />
+                  <Tooltip
+                    formatter={(value: number) => [`${value}%`, '']}
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: '1px solid rgba(212,168,68,0.3)',
+                      fontFamily: 'Tajawal',
+                    }}
+                  />
+                  <Bar dataKey="value" name="النسبة" radius={[0, 8, 8, 0]} barSize={28}>
+                    {channelData.map((entry, i) => (
+                      <Cell key={`ch-${i}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="mt-4 space-y-2">
+                <div className="bg-ghee-gold/10 border border-ghee-gold/20 rounded-lg p-3">
+                  <p className="text-crust-dark text-sm font-tajawal font-semibold">الزبائن المباشرون يمثلون 45% من المبيعات</p>
+                  <p className="text-warm-brown text-xs font-tajawal mt-1">تقليل عمولة التطبيقات يزيد الربحية بنسبة 20%</p>
+                </div>
+                <div className="bg-sage-green/10 border border-sage-green/20 rounded-lg p-3">
+                  <p className="text-crust-dark text-sm font-tajawal font-semibold">فرصة: زيادة المبيعات المباشرة</p>
+                  <p className="text-warm-brown text-xs font-tajawal mt-1">استهداف العملاء على السوشيال ميديا لتوجيههم للطلب المباشر</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Payment Methods */}
+            <motion.div
+              custom={10}
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              className="bg-white/72 backdrop-blur-[20px] border border-ghee-gold/25 rounded-xl p-6 shadow-glass"
+            >
+              <h3 className="font-cairo font-bold text-lg text-crust-dark mb-4">طرق الدفع</h3>
+              <div className="space-y-5">
+                {[
+                  { name: 'شبكة (مدى/فيزا)', value: 55, color: '#D4A844' },
+                  { name: 'نقدي', value: 35, color: '#6B7F59' },
+                  { name: 'آجل', value: 10, color: '#D4652A' },
+                ].map((method) => (
+                  <div key={method.name}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-tajawal text-crust-dark font-semibold">{method.name}</span>
+                      <span className="text-sm font-inter font-bold" style={{ color: method.color }}>
+                        {method.value}%
+                      </span>
+                    </div>
+                    <div className="h-3 bg-surface-cream rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${method.value}%` }}
+                        transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: method.color }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 pt-4 border-t border-warm-brown/10">
+                <p className="text-warm-brown text-sm font-tajawal mb-2">تحليل سريع</p>
+                <p className="text-crust-dark text-sm font-tajawal leading-relaxed">
+                  55% من الدفعات عبر الشبكة يعني تدفق نقدي منظم وأسهل للتتبع. نسبة 35% نقدي تستدعي 
+                  تركيزاً على إدارة الصندوق وتوثيق الإيصالات. يُنصح بتشجيع الدفع الإلكتروني لتقليل الأخطاء.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ─── Busy Hours Heatmap ─── */}
+        <section className="px-6 pb-8">
+          <motion.div
+            custom={11}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="bg-white/72 backdrop-blur-[20px] border border-ghee-gold/25 rounded-xl p-6 shadow-glass"
+          >
+            <h3 className="font-cairo font-bold text-lg text-crust-dark mb-2">ساعات الذروة — Busy Hours</h3>
+            <p className="text-warm-brown text-sm font-tajawal mb-6">
+              الألوان الداكنة = أعلى مبيعات | Darker colors = higher sales
+            </p>
+
+            {/* Peak hours summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <div className="bg-[#C4943A]/15 border border-[#C4943A]/30 rounded-lg p-3 text-center">
+                <p className="text-[#C4943A] font-cairo font-bold text-sm">🔥 الجمعة 10-12 ليلاً</p>
+                <p className="text-warm-brown text-xs font-tajawal">ذروة المبيعات</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">38,738 ر.س</p>
+              </div>
+              <div className="bg-[#D4A844]/15 border border-[#D4A844]/30 rounded-lg p-3 text-center">
+                <p className="text-[#D4A844] font-cairo font-bold text-sm">الخميس 10-12 ليلاً</p>
+                <p className="text-warm-brown text-xs font-tajawal">مرتفع جداً</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">32,529 ر.س</p>
+              </div>
+              <div className="bg-[#E5B84B]/15 border border-[#E5B84B]/30 rounded-lg p-3 text-center">
+                <p className="text-[#E5B84B] font-cairo font-bold text-sm">6-8 مساءً</p>
+                <p className="text-warm-brown text-xs font-tajawal">مرتفع</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~27K ر.س</p>
+              </div>
+              <div className="bg-[#6B7F59]/10 border border-[#6B7F59]/20 rounded-lg p-3 text-center">
+                <p className="text-[#6B7F59] font-cairo font-bold text-sm">3 صباحاً-12 ظهراً</p>
+                <p className="text-warm-brown text-xs font-tajawal">منخفض</p>
+                <p className="text-crust-dark font-inter font-bold text-sm mt-1">~3K ر.س</p>
+              </div>
+            </div>
+
+            {/* Heatmap */}
+            <div className="overflow-x-auto">
+              <div className="min-w-[600px]">
+                {/* Legend */}
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <span className="text-xs font-tajawal text-warm-brown">منخفض</span>
+                  <div className="flex gap-1">
+                    {[
+                      { c: '#FDF6EC', l: 'Low' },
+                      { c: '#F5E6D0', l: 'Med' },
+                      { c: '#E5B84B', l: 'High' },
+                      { c: '#D4A844', l: 'V.High' },
+                      { c: '#C4943A', l: 'Peak' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex flex-col items-center gap-1">
+                        <div className="w-8 h-5 rounded-sm" style={{ backgroundColor: item.c }} />
+                        <span className="text-[10px] font-tajawal text-warm-brown">{item.l}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <span className="text-xs font-tajawal text-warm-brown">ذروة</span>
+                </div>
+
+                {/* Hour headers */}
+                <div className="grid grid-cols-[80px_repeat(12,1fr)] gap-1 mb-1">
+                  <div />
+                  {hourLabels.map((h) => (
+                    <div key={h} className="text-center text-xs font-inter text-warm-brown/70 py-1">
+                      {h}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Heatmap rows with tooltips */}
+                {seasonalityData.map((row, ri) => (
+                  <div key={ri} className="grid grid-cols-[80px_repeat(12,1fr)] gap-1 mb-1">
+                    <div className="flex items-center justify-end pr-2 text-xs font-tajawal font-semibold text-crust-dark">
+                      {dayLabels[ri]}
+                    </div>
+                    {row.map((color, ci) => {
+                      const salesVal = seasonalityValues[ri][ci];
+                      const intensity =
+                        color === '#C4943A' ? 'ذروة!' :
+                        color === '#D4A844' ? 'مرتفع جداً' :
+                        color === '#E5B84B' ? 'مرتفع' :
+                        color === '#F5E6D0' ? 'متوسط' : 'منخفض';
+                      return (
+                        <div key={ci} className="relative group cursor-pointer">
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: ri * 0.02 + ci * 0.005, duration: 0.2 }}
+                            className="aspect-square rounded-md border border-transparent group-hover:border-crust-dark/30 group-hover:scale-110 transition-all"
+                            style={{ backgroundColor: color }}
+                          />
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-50 whitespace-nowrap">
+                            <div className="bg-crust-dark text-dough-cream text-xs font-tajawal px-2 py-1 rounded-lg shadow-lg">
+                              {dayLabels[ri]} — {hourLabels[ci]}: {salesVal.toLocaleString()} ر.س ({intensity})
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4 bg-surface-cream rounded-lg p-4">
+              <p className="text-crust-dark text-sm font-tajawal font-semibold mb-1">
+                أوقات الذروة: الخميس والجمعة 8-11 مساءً | Thursday-Friday 8-11 PM
+              </p>
+              <p className="text-warm-brown text-xs font-tajawal">
+                المبيعات تصل لذروتها في المساء وخلال نهاية الأسبوع. ننصح بتكثيف الإعلانات والموظفين في هذه الفترة.
+                الأحد والإثنين هما أقل أيام المبيعات — فرصة لعمل عروض خاصة.
+              </p>
+            </div>
+          </motion.div>
+        </section>
+      </div>
+    </div>
+  );
+}
