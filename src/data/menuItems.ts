@@ -467,7 +467,7 @@ const extrasItems: MenuItem[] = [
 // ─── مشروبات (4 items) ───
 const drinksItems: MenuItem[] = [
   { id: "d1", name: "بيبسي", description: "", price: 3, calories: 86, category: "drinks", image: "/food-mushaltat.png" },
-  { id: "d2", name: "كينزا", description: "", price: 2, calories: 111, category: "drinks", image: "/food-mushaltat.png" },
+  { id: "d2", name: "كينزا", description: "", price: 2, calories: 111, category: "drinks", image: "/drink-kinza.png" },
   { id: "d3", name: "شاي", description: "", price: 2, calories: 5, category: "drinks", image: "/food-mushaltat.png" },
   { id: "d4", name: "ماء", description: "", price: 0.5, calories: 0, category: "drinks", image: "/food-mushaltat.png" },
 ];
