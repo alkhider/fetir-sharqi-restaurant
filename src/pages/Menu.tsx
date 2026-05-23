@@ -9,7 +9,11 @@ import {
   Search,
   Trash2,
   ChevronRight,
+  FileDown,
 } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import { toDataURL } from 'qrcode';
 import { Link } from 'react-router';
 import { useBasket } from '@/context/BasketContext';
 import { categories, hotItemIds } from '@/data/menuItems';
@@ -379,6 +383,180 @@ function BasketDrawer({
   );
 }
 
+/* ─── PDF Download Button ─── */
+function PDFDownloadButton() {
+  const [generating, setGenerating] = useState(false);
+
+  const handleDownload = async () => {
+    setGenerating(true);
+    try {
+      // Build visible off-screen render container
+      const container = document.createElement('div');
+      container.id = 'pdf-render-container';
+      container.style.cssText =
+        'position:fixed;left:-5000px;top:0;width:1200px;background:#FFFCE8;font-family:Cairo,Tajawal,sans-serif;direction:rtl;padding:40px;z-index:-1;opacity:0.99;';
+
+      // Inject Google Fonts
+      const fontLink = document.createElement('link');
+      fontLink.href =
+        'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700&display=swap';
+      fontLink.rel = 'stylesheet';
+      document.head.appendChild(fontLink);
+
+      // Header
+      const now = new Date().toLocaleDateString('ar-SA');
+      container.innerHTML = `
+        <div style="text-align:center;margin-bottom:30px;">
+          <img src="/logo.png" style="width:120px;height:auto;margin-bottom:10px;" />
+          <h1 style="font-family:Cairo,sans-serif;font-size:36px;font-weight:800;color:#3D2817;margin:0;">منيو فطير شرقي</h1>
+          <p style="font-family:Tajawal,sans-serif;font-size:16px;color:#8C5E3C;margin:5px 0 0 0;">المدينة المنورة — تاريخ: ${now}</p>
+        </div>
+      `;
+
+      // Items by category
+      for (const cat of categories) {
+        const items = cat.items;
+        if (items.length === 0) continue;
+
+        const catDiv = document.createElement('div');
+        catDiv.style.cssText = 'margin-bottom:30px;';
+
+        let itemsHtml = '';
+        for (const item of items) {
+          itemsHtml += `
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed #D4A84433;">
+              <div style="flex:1;">
+                <div style="font-family:Cairo,sans-serif;font-size:16px;font-weight:700;color:#3D2817;">${item.name}</div>
+                <div style="font-family:Tajawal,sans-serif;font-size:13px;color:#8C5E3C;">${item.calories > 0 ? item.calories + ' سعرة' : ''}</div>
+              </div>
+              <div style="font-family:Cairo,sans-serif;font-size:18px;font-weight:700;color:#C0392B;white-space:nowrap;">
+                ${item.price} ر.س
+              </div>
+            </div>
+          `;
+        }
+
+        catDiv.innerHTML = `
+          <h2 style="font-family:Cairo,sans-serif;font-size:22px;font-weight:700;color:#D4A844;border-bottom:3px solid #D4A844;padding-bottom:8px;margin-bottom:15px;margin-top:25px;">${cat.label}</h2>
+          ${itemsHtml}
+        `;
+        container.appendChild(catDiv);
+      }
+
+      // Footer
+      const footer = document.createElement('div');
+      footer.style.cssText = 'text-align:center;margin-top:40px;padding-top:20px;border-top:2px solid #D4A844;';
+      footer.innerHTML = `
+        <p style="font-family:Tajawal,sans-serif;font-size:14px;color:#8C5E3C;">للطلب والاستفسار: 055-678-7630 | واتساب متاح</p>
+        <p style="font-family:Tajawal,sans-serif;font-size:14px;color:#8C5E3C;">طريق الأمير محمد بن سلمان — حي الخالدية — المدينة المنورة</p>
+        <div id="pdf-qrcode" style="margin-top:15px;width:100px;height:100px;"></div>
+      `;
+      container.appendChild(footer);
+
+      document.body.appendChild(container);
+
+      // Wait for fonts
+      await document.fonts.ready;
+      await new Promise((r) => setTimeout(r, 600));
+
+      // Generate QR code
+      const qrUrl = window.location.href.replace('/menu', '');
+      let qrDataUrl = '';
+      try {
+        qrDataUrl = await toDataURL(qrUrl, { width: 100, margin: 2, color: { dark: '#3D2817', light: '#FFFCE8' } });
+      } catch (e) {
+        console.log('QR skipped');
+      }
+
+      if (qrDataUrl) {
+        const qrDiv = container.querySelector('#pdf-qrcode') as HTMLElement;
+        if (qrDiv) {
+          qrDiv.innerHTML = `<img src="${qrDataUrl}" style="width:100px;height:100px;" />`;
+        }
+      }
+
+      // Render to canvas
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#FFFCE8',
+        logging: false,
+        onclone: (doc: Document) => {
+          const c = doc.getElementById('pdf-render-container');
+          if (c) {
+            c.style.opacity = '1';
+            c.style.position = 'fixed';
+            c.style.left = '0';
+            c.style.top = '0';
+          }
+        },
+      });
+
+      // Create PDF
+      const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const contentWidth = pageWidth - margin * 2;
+
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(contentWidth / imgWidth, 1);
+      const scaledHeight = imgHeight * ratio;
+
+      // Multi-page if needed
+      let position = 0;
+      let remaining = scaledHeight;
+      const contentHeight = pageHeight - margin * 2;
+
+      while (remaining > 0) {
+        const sliceHeight = Math.min(remaining, contentHeight);
+        const sliceRatio = sliceHeight / scaledHeight;
+        const sourceY = (position / scaledHeight) * imgHeight;
+        const sourceH = sliceRatio * imgHeight;
+
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = imgWidth;
+        tempCanvas.height = sourceH;
+        const ctx = tempCanvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(canvas, 0, sourceY, imgWidth, sourceH, 0, 0, imgWidth, sourceH);
+        }
+        const sliceData = tempCanvas.toDataURL('image/jpeg', 0.95);
+
+        if (position > 0) pdf.addPage();
+        pdf.addImage(sliceData, 'JPEG', margin, margin, contentWidth, sliceHeight);
+
+        remaining -= sliceHeight;
+        position += sliceHeight;
+      }
+
+      pdf.save('fetir-sharqi-menu.pdf');
+
+      // Cleanup
+      document.body.removeChild(container);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      alert('فشل إنشاء ملف PDF. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleDownload}
+      disabled={generating}
+      className="flex items-center gap-2 bg-ghee-gold hover:bg-[#E5B84B] text-crust-dark px-5 py-2.5 rounded-xl font-cairo font-bold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+      title="تحميل المنيو PDF"
+    >
+      <FileDown className="w-4 h-4" />
+      {generating ? 'جاري التحميل...' : 'تحميل المنيو'}
+    </button>
+  );
+}
+
 /* ─── Main Menu Page ─── */
 export default function Menu() {
   const [activeTab, setActiveTab] = useState('all');
@@ -482,22 +660,31 @@ export default function Menu() {
             اختار اللي يعجبك وأضفه للسلة
           </motion.p>
 
-          {/* Search */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: easeOutExpo, delay: 0.3 }}
-            className="max-w-[480px] relative"
-          >
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-warm-brown/50" />
-            <input
-              type="text"
-              placeholder="ابحث في المنيو..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-12 pr-12 pl-4 rounded-xl bg-dough-cream text-crust-dark font-tajawal placeholder:text-warm-brown/50 focus:outline-none focus:ring-2 focus:ring-ghee-gold/50 transition-shadow"
-            />
-          </motion.div>
+          {/* Search + PDF Download */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: easeOutExpo, delay: 0.3 }}
+              className="flex-1 max-w-[480px] relative"
+            >
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-warm-brown/50" />
+              <input
+                type="text"
+                placeholder="ابحث في المنيو..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full h-12 pr-12 pl-4 rounded-xl bg-dough-cream text-crust-dark font-tajawal placeholder:text-warm-brown/50 focus:outline-none focus:ring-2 focus:ring-ghee-gold/50 transition-shadow"
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: easeOutExpo, delay: 0.4 }}
+            >
+              <PDFDownloadButton />
+            </motion.div>
+          </div>
         </div>
       </section>
 
