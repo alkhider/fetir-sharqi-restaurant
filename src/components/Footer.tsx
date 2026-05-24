@@ -1,9 +1,12 @@
 import { Link } from 'react-router';
 import { MapPin, Phone, Clock, Instagram, Facebook } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useOffers, getFormattedHours } from '@/context/OffersContext';
 
 export default function Footer() {
   const { t } = useLanguage();
+  const { workingDays } = useOffers();
+  const formattedHours = getFormattedHours(workingDays);
 
   return (
     <footer className="bg-crust-dark text-dough-cream relative overflow-hidden">
@@ -123,22 +126,12 @@ export default function Footer() {
             </h4>
             <div className="glass-card-dark p-5 rounded-xl">
               <div className="flex flex-col gap-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-dough-cream/80 text-sm font-tajawal">
-                    {t('السبت – الخميس', 'Saturday – Thursday')}
-                  </span>
-                  <span className="text-ghee-gold font-semibold text-sm font-mono">
-                    4:00 PM – 1:00 AM
-                  </span>
-                </div>
-                <div className="border-t border-ghee-gold/10 pt-3 flex justify-between items-center">
-                  <span className="text-dough-cream/80 text-sm font-tajawal">
-                    {t('الجمعة', 'Friday')}
-                  </span>
-                  <span className="text-ghee-gold font-semibold text-sm font-mono">
-                    2:00 PM – 1:00 AM
-                  </span>
-                </div>
+                {formattedHours.map((h, i) => (
+                  <div key={i} className={`flex justify-between items-center ${i > 0 ? 'border-t border-ghee-gold/10 pt-3' : ''}`}>
+                    <span className="text-dough-cream/80 text-sm font-tajawal">{h.label}</span>
+                    <span className="text-ghee-gold font-semibold text-sm font-mono">{h.hours}</span>
+                  </div>
+                ))}
               </div>
             </div>
             <div className="mt-5 p-4 rounded-xl border border-ghee-gold/20 bg-ghee-gold/5">

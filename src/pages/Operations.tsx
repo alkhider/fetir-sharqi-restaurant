@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -399,9 +400,121 @@ function KanbanCard({
   );
 }
 
+// ─── Load real orders from localStorage ──────────────────────────
+function loadRealOrders(): Order[] {
+  try {
+    const stored = JSON.parse(localStorage.getItem('fetir-orders') || '[]');
+    if (!Array.isArray(stored) || stored.length === 0) return mockOrders;
+
+    const statusMap: Record<string, OrderStatus> = {
+      pending: 'جديد',
+      preparing: 'قيد التحضير',
+      ready: 'جاهز',
+      delivered: 'تم التوصيل',
+      cancelled: 'ملغي',
+    };
+
+    const typeMap: Record<string, OrderType> = {
+      pickup: 'سفري',
+      delivery: 'محلي',
+    };
+
+    const paymentMap: Record<string, PaymentMethod> = {
+      cash: 'نقدي',
+      card: 'شبكة',
+    };
+
+    const now = new Date();
+
+    return stored.map((raw: any, idx: number) => {
+      const rawStatus = raw.status || 'pending';
+      const orderStatus: OrderStatus = statusMap[rawStatus] || 'جديد';
+      const orderType: OrderType = typeMap[raw.orderType] || 'سفري';
+      const payment: PaymentMethod = paymentMap[raw.paymentMethod] || 'نقدي';
+      const dateObj = raw.date ? new Date(raw.date) : now;
+      const dateStr = dateObj.toISOString().split('T')[0];
+      const timeStr = raw.time || dateObj.toTimeString().slice(0, 5);
+
+      // Parse items — extract size from name like "مشلتت (وسط)"
+      const orderItems: OrderItem[] = (raw.items || []).map((it: any) => {
+        const nameMatch = it.name?.match(/^(.+?)\s*\(([^)]+)\)$/) || [null, it.name, null];
+        return {
+          name: nameMatch[1]?.trim() || it.name,
+          size: nameMatch[2]?.trim() || it.size,
+          quantity: it.quantity || 1,
+          price: it.price || 0,
+          notes: it.notes,
+        };
+      });
+
+      // Build timeline from status
+      const timeline: { status: OrderStatus; time: string }[] = [{ status: 'جديد', time: timeStr }];
+      if (['قيد التحضير', 'جاهز', 'تم التوصيل'].includes(orderStatus)) {
+        timeline.push({ status: 'قيد التحضير', time: timeStr });
+      }
+      if (['جاهز', 'تم التوصيل'].includes(orderStatus)) {
+        timeline.push({ status: 'جاهز', time: timeStr });
+      }
+      if (orderStatus === 'تم التوصيل') {
+        timeline.push({ status: 'تم التوصيل', time: timeStr });
+      }
+      if (orderStatus === 'ملغي') {
+        timeline.length = 0;
+        timeline.push({ status: 'جديد', time: timeStr }, { status: 'ملغي', time: timeStr });
+      }
+
+      return {
+        id: `#${raw.orderNumber || `ORD-${15670 + idx}`}`,
+        date: dateStr,
+        time: timeStr,
+        customer: raw.customer || 'عميل',
+        phone: raw.phone || '-',
+        type: orderType,
+        items: orderItems,
+        amount: raw.total || orderItems.reduce((s: number, it: OrderItem) => s + it.price * it.quantity, 0),
+        status: orderStatus,
+        payment,
+        address: raw.address,
+        timeline,
+      };
+    });
+  } catch {
+    return mockOrders;
+  }
+}
+
+// ─── Save orders back to localStorage ────────────────────────────
+function saveOrdersToStorage(orders: Order[]) {
+  try {
+    const statusReverse: Record<string, string> = {
+      'جديد': 'pending',
+      'قيد التحضير': 'preparing',
+      'جاهز': 'ready',
+      'تم التوصيل': 'delivered',
+      'ملغي': 'cancelled',
+    };
+
+    const stored = orders.map((o) => ({
+      orderNumber: o.id.replace('#', ''),
+      date: `${o.date}T${o.time}:00`,
+      customer: o.customer,
+      phone: o.phone,
+      address: o.address,
+      orderType: o.type === 'سفري' ? 'pickup' : 'delivery',
+      paymentMethod: o.payment === 'نقدي' ? 'cash' : 'card',
+      items: o.items,
+      total: o.amount,
+      status: statusReverse[o.status] || 'pending',
+    }));
+
+    localStorage.setItem('fetir-orders', JSON.stringify(stored));
+  } catch { /* ignore */ }
+}
+
 // ─── Main Operations Page ────────────────────────────────────────
 export default function Operations() {
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
+  const location = useLocation();
+  const [orders, setOrders] = useState<Order[]>(loadRealOrders);
   const [view, setView] = useState<'kanban' | 'table'>('kanban');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'الكل'>('الكل');
@@ -442,6 +555,39 @@ export default function Operations() {
     { title: 'جاهزة', status: 'جاهز', color: '#27AE60' },
     { title: 'تم التوصيل', status: 'تم التوصيل', color: '#5B8FA8' },
   ];
+
+  // Reload orders on mount, route change, focus, and visibility change
+  useEffect(() => {
+    setOrders(loadRealOrders());
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleFocus = () => setOrders(loadRealOrders());
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (!document.hidden) setOrders(loadRealOrders());
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
+  // Listen for localStorage changes from other tabs/pages
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'fetir-orders') setOrders(loadRealOrders());
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  // Save orders to localStorage whenever they change
+  useEffect(() => {
+    saveOrdersToStorage(orders);
+  }, [orders]);
 
   const handleStatusChange = (id: string, newStatus: OrderStatus) => {
     setOrders((prev) =>

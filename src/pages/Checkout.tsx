@@ -125,6 +125,16 @@ export default function Checkout() {
     }
   }, [form, touched, validate]);
 
+  // Auto-redirect to Operations after successful order (3 sec delay)
+  useEffect(() => {
+    if (submitted) {
+      const timer = setTimeout(() => {
+        window.location.hash = '/operations';
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted]);
+
   const handleBlur = (field: string) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
@@ -179,16 +189,21 @@ export default function Checkout() {
       disableForReducedMotion: true,
     });
 
-    /* save order to localStorage history */
+    /* save order to localStorage for Operations page */
     try {
       const history = JSON.parse(localStorage.getItem('fetir-orders') || '[]');
       history.unshift({
         orderNumber,
         date: new Date().toISOString(),
+        customer: form.fullName,
+        phone: form.phone,
+        address: form.address,
+        notes: form.notes,
+        orderType: form.orderType,
+        paymentMethod: form.paymentMethod,
         items: [...items],
         total,
         status: 'pending',
-        paymentMethod: form.paymentMethod,
       });
       localStorage.setItem('fetir-orders', JSON.stringify(history.slice(0, 50)));
     } catch { /* ignore */ }

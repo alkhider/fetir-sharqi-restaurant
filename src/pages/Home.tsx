@@ -16,7 +16,8 @@ import {
   Plus,
 } from 'lucide-react';
 import { useBasket } from '@/context/BasketContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext'
+import { useOffers, getFormattedHours } from '@/context/OffersContext';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
@@ -100,7 +101,7 @@ const dishes = [
     desc: 'عجينة رقيقة مع جبنة موزاريلا حقيقية ومواد طازجة',
     descEn: 'Thin dough with real mozzarella & fresh toppings',
     price: 35,
-    image: '/food-pizza.png',
+    image: '/food-pizza-v2.png',
     category: 'بيتزا',
     categoryEn: 'Pizza',
   },
@@ -218,6 +219,29 @@ function TiltCard({ children, className }: { children: React.ReactNode; classNam
         {children}
       </motion.div>
     </motion.div>
+  );
+}
+
+/* ─── Hours Card (dynamic from OffersContext) ─── */
+function HoursCard() {
+  const { workingDays } = useOffers();
+  const formatted = getFormattedHours(workingDays);
+  const { t } = useLanguage();
+  return (
+    <div className="glass-card p-6 mb-8">
+      <div className="flex items-center gap-2 mb-4">
+        <Clock className="w-5 h-5 text-ghee-gold" />
+        <h3 className="font-cairo font-bold text-crust-dark">{t('ساعات العمل', 'Opening Hours')}</h3>
+      </div>
+      <div className="space-y-3">
+        {formatted.map((h, i) => (
+          <div key={i} className={`flex justify-between items-center ${i > 0 ? 'border-t border-ghee-gold/10 pt-3' : ''}`}>
+            <span className="text-crust-dark/80 text-sm font-tajawal">{h.label}</span>
+            <span className="text-ghee-gold font-semibold text-sm font-mono">{h.hours}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -753,32 +777,7 @@ export default function Home() {
               </motion.div>
 
               {/* Hours Card */}
-              <motion.div variants={staggerChild} className="glass-card p-6 mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <Clock className="w-5 h-5 text-ghee-gold" />
-                  <h3 className="font-cairo font-bold text-crust-dark">
-                    {t('ساعات العمل', 'Opening Hours')}
-                  </h3>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-crust-dark/80 text-sm font-tajawal">
-                      {t('السبت – الخميس', 'Sat – Thu')}
-                    </span>
-                    <span className="text-ghee-gold font-semibold text-sm font-mono">
-                      4:00 PM – 1:00 AM
-                    </span>
-                  </div>
-                  <div className="border-t border-ghee-gold/10 pt-3 flex justify-between items-center">
-                    <span className="text-crust-dark/80 text-sm font-tajawal">
-                      {t('الجمعة', 'Friday')}
-                    </span>
-                    <span className="text-ghee-gold font-semibold text-sm font-mono">
-                      2:00 PM – 1:00 AM
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
+              <HoursCard />
 
               {/* Social Links */}
               <motion.div variants={staggerChild} className="flex items-center gap-3">
@@ -814,7 +813,7 @@ export default function Home() {
             >
               <iframe
                 title="Fetir Sharqi Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3632.2!2d39.6!3d24.47!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjTCsDI4JzEyLjAiTiAzOcKwMzYnMDAuMCJF!5e0!3m2!1sen!2ssa!4v1"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3631.689451000572!2d39.64985947631637!3d24.461557461101734!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x15bdbfe2bd47c7ed%3A0xd4acf1649db1cce6!2z2YHYt9mK2LEg2LTYsdmC2Yoo2YXYtNmE2KrYqiDZiCDYrdin2K_ZgiDZiCDYrdmE2Ygg2Ygg2YPYsdmK2Kgg2Ygg2KjZitiq2LLYpyAp!5e0!3m2!1sen!2sbe!4v1779627899772!5m2!1sen!2sbe"
                 width="100%"
                 height="100%"
                 style={{ border: 0, filter: 'grayscale(0.2)' }}
@@ -868,7 +867,7 @@ export default function Home() {
               '/food-helw.png',
               '/food-crepe.png',
               '/hero-mushaltat.png',
-              '/food-pizza.png',
+              '/food-pizza-v2.png',
               '/food-hawawshi.png',
               '/food-mushaltat.png',
               '/food-helw.png',

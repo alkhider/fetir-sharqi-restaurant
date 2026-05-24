@@ -7,6 +7,9 @@ import {
   ClipboardList,
   Users,
   FileUp,
+  Monitor,
+  Utensils,
+  Tag,
   Settings,
   LogOut,
 } from 'lucide-react';
@@ -32,6 +35,9 @@ const navGroups = [
       { label: 'الطلبات', href: '/operations', icon: ClipboardList },
       { label: 'إدارة العملاء', href: '/dashboard', icon: Users },
       { label: 'رفع الفواتير', href: '/data-processor', icon: FileUp },
+      { label: 'شاشة العرض', href: '/display', icon: Monitor },
+      { label: 'إدارة المنيو', href: '/menu-management', icon: Utensils },
+      { label: 'إدارة العروض', href: '/offers-management', icon: Tag },
     ],
   },
 ];
