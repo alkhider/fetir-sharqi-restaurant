@@ -8,11 +8,13 @@ export interface BasketItem {
   quantity: number;
   image: string;
   notes?: string;
+  size?: 'medium' | 'large';
 }
 
 interface BasketContextType {
   items: BasketItem[];
   addItem: (item: Omit<BasketItem, 'quantity'>) => void;
+  addItemWithSize: (baseId: string, item: Omit<BasketItem, 'quantity' | 'id'>) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearBasket: () => void;
@@ -58,6 +60,19 @@ export function BasketProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const addItemWithSize = useCallback((baseId: string, item: Omit<BasketItem, 'quantity' | 'id'>) => {
+    const sizeId = item.size ? `${baseId}-${item.size}` : baseId;
+    setItems((prev) => {
+      const existing = prev.find((i) => i.id === sizeId);
+      if (existing) {
+        return prev.map((i) =>
+          i.id === sizeId ? { ...i, quantity: i.quantity + 1 } : i
+        );
+      }
+      return [...prev, { ...item, id: sizeId, quantity: 1 }];
+    });
+  }, []);
+
   const removeItem = useCallback((id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   }, []);
@@ -91,6 +106,7 @@ export function BasketProvider({ children }: { children: ReactNode }) {
       value={{
         items,
         addItem,
+        addItemWithSize,
         removeItem,
         updateQuantity,
         clearBasket,

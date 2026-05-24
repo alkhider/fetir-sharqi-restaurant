@@ -24,11 +24,11 @@ const mushaltatItems: MenuItem[] = [
   {
     id: "m1", name: "مشلتت", description: "عجينة المشلتت الأصلية بالسمن البقري والزبدة. يقدم مع عسل وجبن.",
     price: 22, priceLarge: 30, calories: 620, caloriesLarge: 920,
-    category: "mushaltat", image: "/food-mushaltat.png", isHot: true,
+    category: "mushaltat", image: "/food-mushaltat-new.png", isHot: true,
   },
   {
     id: "m2", name: "مشلتت بر", description: "مشلتت بسمن بقري وزبدة بقري بدون أي دهون نباتية. يقدم مع عسل وجبن.",
-    price: 45, calories: 850, category: "mushaltat", image: "/food-mushaltat.png",
+    price: 45, calories: 850, category: "mushaltat", image: "/food-mushaltat-new.png",
   },
 ];
 

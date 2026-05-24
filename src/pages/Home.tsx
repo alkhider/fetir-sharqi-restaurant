@@ -814,7 +814,7 @@ export default function Home() {
             >
               <iframe
                 title="Fetir Sharqi Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3632.2!2d39.6!3d24.47!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjTCsDI4JzEyLjAiTiAzOcKwMzYnMDAuMCJF!5e0!3m2!1sen!2ssa!4v1"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3631.689451000572!2d39.64985947631637!3d24.461557461101734!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x15bdbfe2bd47c7ed%3A0xd4acf1649db1cce6!2z2YHYt9mK2LEg2LTYsdmC2Yoo2YXYtNmE2KrYqiDZiCDYrdin2K_ZgiDZiCDYrdmE2Ygg2Ygg2YPYsdmK2Kgg2Ygg2KjZitiq2LLYpyAp!5e0!3m2!1sen!2sbe!4v1779627899772!5m2!1sen!2sbe"
                 width="100%"
                 height="100%"
                 style={{ border: 0, filter: 'grayscale(0.2)' }}

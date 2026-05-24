@@ -9,7 +9,11 @@ import {
   Search,
   Trash2,
   ChevronRight,
+  FileDown,
 } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import { toDataURL } from 'qrcode';
 import { Link } from 'react-router';
 import { useBasket } from '@/context/BasketContext';
 import { categories, hotItemIds } from '@/data/menuItems';
@@ -145,7 +149,7 @@ function MenuCard({
             </div>
           )}
           {/* Quick add */}
-          {quantity === 0 ? (
+          {quantity === 0 || item.priceLarge ? (
             <motion.button
               whileTap={{ scale: 0.8 }}
               onClick={() => onAdd(item)}
@@ -190,7 +194,7 @@ function MenuCard({
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                if (quantity === 0) {
+                if (quantity === 0 || item.priceLarge) {
                   onAdd(item);
                 } else {
                   onQuantityChange(item.id, quantity + 1);
@@ -198,7 +202,7 @@ function MenuCard({
               }}
               className="btn-primary px-4 py-2 text-sm font-bold flex items-center gap-1.5"
             >
-              أضف للسلة
+              {quantity > 0 && !item.priceLarge ? '+' : 'أضف للسلة'}
             </motion.button>
           </div>
         </div>
@@ -312,10 +316,22 @@ function BasketDrawer({
                           <h4 className="font-cairo font-semibold text-crust-dark text-sm truncate">
                             {item.name}
                           </h4>
-                          <p className="text-ghee-gold font-bold text-sm mt-0.5">
-                            {item.price * item.quantity}{' '}
-                            <span className="text-xs font-normal">ر.س</span>
-                          </p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <p className="text-ghee-gold font-bold text-sm">
+                              {item.price * item.quantity}{' '}
+                              <span className="text-xs font-normal">ر.س</span>
+                            </p>
+                            {item.size && (
+                              <span className={cn(
+                                'text-[10px] font-bold px-1.5 py-0.5 rounded-full',
+                                item.size === 'large'
+                                  ? 'bg-ember-orange/15 text-ember-orange'
+                                  : 'bg-ghee-gold/15 text-ghee-gold'
+                              )}>
+                                {item.size === 'large' ? 'كبير' : 'وسط'}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <QuantityControl
                           value={item.quantity}
@@ -379,12 +395,283 @@ function BasketDrawer({
   );
 }
 
+/* ─── Size Picker Modal ─── */
+function SizePicker({
+  item,
+  open,
+  onClose,
+  onSelect,
+}: {
+  item: MenuItem | null;
+  open: boolean;
+  onClose: () => void;
+  onSelect: (item: MenuItem, size: 'medium' | 'large') => void;
+}) {
+  if (!item) return null;
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/50 z-[90] flex items-center justify-center p-4"
+            onClick={onClose}
+          >
+            {/* Modal */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.3, ease: easeOutExpo }}
+              className="bg-dough-cream rounded-2xl shadow-2xl w-full max-w-[360px] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="bg-crust-dark p-5 text-center relative">
+                <button
+                  onClick={onClose}
+                  className="absolute top-3 left-3 text-dough-cream/60 hover:text-dough-cream transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                <h3 className="font-cairo font-bold text-lg text-dough-cream">
+                  {item.name}
+                </h3>
+                <p className="text-ghee-gold/80 text-xs font-tajawal mt-1">
+                  اختر الحجم المفضل
+                </p>
+              </div>
+
+              {/* Options */}
+              <div className="p-5 space-y-3">
+                {/* Medium */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => onSelect(item, 'medium')}
+                  className="w-full flex items-center justify-between p-4 rounded-xl border-2 border-ghee-gold/30 hover:border-ghee-gold hover:bg-ghee-gold/10 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-ghee-gold/20 flex items-center justify-center">
+                      <span className="font-cairo font-bold text-ghee-gold text-sm">و</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-cairo font-bold text-crust-dark block">وسط</span>
+                      <span className="text-warm-brown text-xs font-tajawal">
+                        {item.calories > 0 ? `${item.calories} سعرة` : ''}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="font-cairo font-bold text-ghee-gold text-lg">
+                    {item.price} <span className="text-sm text-warm-brown">ر.س</span>
+                  </span>
+                </motion.button>
+
+                {/* Large */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => onSelect(item, 'large')}
+                  className="w-full flex items-center justify-between p-4 rounded-xl border-2 border-ember-orange/30 hover:border-ember-orange hover:bg-ember-orange/10 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-ember-orange/20 flex items-center justify-center">
+                      <Flame className="w-5 h-5 text-ember-orange" />
+                    </div>
+                    <div className="text-right">
+                      <span className="font-cairo font-bold text-crust-dark block">كبير</span>
+                      <span className="text-warm-brown text-xs font-tajawal">
+                        {item.caloriesLarge && item.caloriesLarge > 0 ? `${item.caloriesLarge} سعرة` : ''}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="font-cairo font-bold text-ember-orange text-lg">
+                    {item.priceLarge} <span className="text-sm text-warm-brown">ر.س</span>
+                  </span>
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ─── PDF Download Button ─── */
+function PDFDownloadButton() {
+  const [generating, setGenerating] = useState(false);
+
+  const handleDownload = async () => {
+    setGenerating(true);
+    try {
+      const container = document.createElement('div');
+      container.id = 'pdf-render-container';
+      container.style.cssText =
+        'position:fixed;left:-5000px;top:0;width:1200px;background:#FFFCE8;font-family:Cairo,Tajawal,sans-serif;direction:rtl;padding:40px;z-index:-1;opacity:0.99;';
+
+      const fontLink = document.createElement('link');
+      fontLink.href =
+        'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700&display=swap';
+      fontLink.rel = 'stylesheet';
+      document.head.appendChild(fontLink);
+
+      const now = new Date().toLocaleDateString('ar-SA');
+      container.innerHTML = `
+        <div style="text-align:center;margin-bottom:30px;">
+          <img src="/logo.png" style="width:120px;height:auto;margin-bottom:10px;" />
+          <h1 style="font-family:Cairo,sans-serif;font-size:36px;font-weight:800;color:#3D2817;margin:0;">منيو فطير شرقي</h1>
+          <p style="font-family:Tajawal,sans-serif;font-size:16px;color:#8C5E3C;margin:5px 0 0 0;">المدينة المنورة — تاريخ: ${now}</p>
+        </div>
+      `;
+
+      for (const cat of categories) {
+        const items = cat.items;
+        if (items.length === 0) continue;
+
+        const catDiv = document.createElement('div');
+        catDiv.style.cssText = 'margin-bottom:30px;';
+
+        let itemsHtml = '';
+        for (const item of items) {
+          itemsHtml += `
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed #D4A84433;">
+              <div style="flex:1;">
+                <div style="font-family:Cairo,sans-serif;font-size:16px;font-weight:700;color:#3D2817;">${item.name}</div>
+                <div style="font-family:Tajawal,sans-serif;font-size:13px;color:#8C5E3C;">${item.calories > 0 ? item.calories + ' سعرة' : ''}</div>
+              </div>
+              <div style="font-family:Cairo,sans-serif;font-size:18px;font-weight:700;color:#C0392B;white-space:nowrap;">
+                ${item.price} ر.س
+              </div>
+            </div>
+          `;
+        }
+
+        catDiv.innerHTML = `
+          <h2 style="font-family:Cairo,sans-serif;font-size:22px;font-weight:700;color:#D4A844;border-bottom:3px solid #D4A844;padding-bottom:8px;margin-bottom:15px;margin-top:25px;">${cat.label}</h2>
+          ${itemsHtml}
+        `;
+        container.appendChild(catDiv);
+      }
+
+      const footer = document.createElement('div');
+      footer.style.cssText = 'text-align:center;margin-top:40px;padding-top:20px;border-top:2px solid #D4A844;';
+      footer.innerHTML = `
+        <p style="font-family:Tajawal,sans-serif;font-size:14px;color:#8C5E3C;">للطلب والاستفسار: 055-678-7630 | واتساب متاح</p>
+        <p style="font-family:Tajawal,sans-serif;font-size:14px;color:#8C5E3C;">طريق الأمير محمد بن سلمان — حي الخالدية — المدينة المنورة</p>
+        <div id="pdf-qrcode" style="margin-top:15px;width:100px;height:100px;"></div>
+      `;
+      container.appendChild(footer);
+
+      document.body.appendChild(container);
+
+      await document.fonts.ready;
+      await new Promise((r) => setTimeout(r, 600));
+
+      const qrUrl = window.location.href.replace('/menu', '');
+      let qrDataUrl = '';
+      try {
+        qrDataUrl = await toDataURL(qrUrl, { width: 100, margin: 2, color: { dark: '#3D2817', light: '#FFFCE8' } });
+      } catch (e) {
+        console.log('QR skipped');
+      }
+
+      if (qrDataUrl) {
+        const qrDiv = container.querySelector('#pdf-qrcode') as HTMLElement;
+        if (qrDiv) {
+          qrDiv.innerHTML = `<img src="${qrDataUrl}" style="width:100px;height:100px;" />`;
+        }
+      }
+
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#FFFCE8',
+        logging: false,
+        onclone: (doc: Document) => {
+          const c = doc.getElementById('pdf-render-container');
+          if (c) {
+            c.style.opacity = '1';
+            c.style.position = 'fixed';
+            c.style.left = '0';
+            c.style.top = '0';
+          }
+        },
+      });
+
+      const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const contentWidth = pageWidth - margin * 2;
+
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(contentWidth / imgWidth, 1);
+      const scaledHeight = imgHeight * ratio;
+
+      let position = 0;
+      let remaining = scaledHeight;
+      const contentHeight = pageHeight - margin * 2;
+
+      while (remaining > 0) {
+        const sliceHeight = Math.min(remaining, contentHeight);
+        const sliceRatio = sliceHeight / scaledHeight;
+        const sourceY = (position / scaledHeight) * imgHeight;
+        const sourceH = sliceRatio * imgHeight;
+
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = imgWidth;
+        tempCanvas.height = sourceH;
+        const ctx = tempCanvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(canvas, 0, sourceY, imgWidth, sourceH, 0, 0, imgWidth, sourceH);
+        }
+        const sliceData = tempCanvas.toDataURL('image/jpeg', 0.95);
+
+        if (position > 0) pdf.addPage();
+        pdf.addImage(sliceData, 'JPEG', margin, margin, contentWidth, sliceHeight);
+
+        remaining -= sliceHeight;
+        position += sliceHeight;
+      }
+
+      pdf.save('fetir-sharqi-menu.pdf');
+      document.body.removeChild(container);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      alert('فشل إنشاء ملف PDF. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleDownload}
+      disabled={generating}
+      className="flex items-center gap-2 bg-ghee-gold hover:bg-[#E5B84B] text-crust-dark px-5 py-2.5 rounded-xl font-cairo font-bold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+      title="تحميل المنيو PDF"
+    >
+      <FileDown className="w-4 h-4" />
+      {generating ? 'جاري التحميل...' : 'تحميل المنيو'}
+    </button>
+  );
+}
+
 /* ─── Main Menu Page ─── */
 export default function Menu() {
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { items, addItem, updateQuantity } = useBasket();
+  const [sizePickerItem, setSizePickerItem] = useState<MenuItem | null>(null);
+  const { items, addItem, addItemWithSize, updateQuantity } = useBasket();
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const filteredItems =
@@ -399,12 +686,19 @@ export default function Menu() {
           ) ?? [];
 
   const getItemQuantity = useCallback(
-    (id: string) => items.find((i) => i.id === id)?.quantity ?? 0,
+    (id: string) =>
+      items
+        .filter((i) => i.id === id || i.id.startsWith(`${id}-`))
+        .reduce((s, i) => s + i.quantity, 0),
     [items]
   );
 
   const handleAdd = useCallback(
     (item: MenuItem) => {
+      if (item.priceLarge) {
+        setSizePickerItem(item);
+        return;
+      }
       addItem({
         id: item.id,
         name: item.name,
@@ -414,6 +708,22 @@ export default function Menu() {
       setDrawerOpen(true);
     },
     [addItem]
+  );
+
+  const handleSizeSelect = useCallback(
+    (item: MenuItem, size: 'medium' | 'large') => {
+      const price = size === 'large' && item.priceLarge ? item.priceLarge : item.price;
+      const sizeLabel = size === 'large' ? 'كبير' : 'وسط';
+      addItemWithSize(item.id, {
+        name: `${item.name} (${sizeLabel})`,
+        price,
+        image: item.image,
+        size,
+      });
+      setSizePickerItem(null);
+      setDrawerOpen(true);
+    },
+    [addItemWithSize]
   );
 
   const scrollToCategory = (key: string) => {
@@ -482,22 +792,31 @@ export default function Menu() {
             اختار اللي يعجبك وأضفه للسلة
           </motion.p>
 
-          {/* Search */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: easeOutExpo, delay: 0.3 }}
-            className="max-w-[480px] relative"
-          >
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-warm-brown/50" />
-            <input
-              type="text"
-              placeholder="ابحث في المنيو..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-12 pr-12 pl-4 rounded-xl bg-dough-cream text-crust-dark font-tajawal placeholder:text-warm-brown/50 focus:outline-none focus:ring-2 focus:ring-ghee-gold/50 transition-shadow"
-            />
-          </motion.div>
+          {/* Search + PDF Download */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: easeOutExpo, delay: 0.3 }}
+              className="flex-1 max-w-[480px] relative"
+            >
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-warm-brown/50" />
+              <input
+                type="text"
+                placeholder="ابحث في المنيو..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full h-12 pr-12 pl-4 rounded-xl bg-dough-cream text-crust-dark font-tajawal placeholder:text-warm-brown/50 focus:outline-none focus:ring-2 focus:ring-ghee-gold/50 transition-shadow"
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: easeOutExpo, delay: 0.4 }}
+            >
+              <PDFDownloadButton />
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -611,6 +930,14 @@ export default function Menu() {
           </>
         )}
       </section>
+
+      {/* Size Picker Modal */}
+      <SizePicker
+        item={sizePickerItem}
+        open={!!sizePickerItem}
+        onClose={() => setSizePickerItem(null)}
+        onSelect={handleSizeSelect}
+      />
 
       {/* Basket Drawer */}
       <BasketDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
