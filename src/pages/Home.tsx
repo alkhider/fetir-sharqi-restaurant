@@ -57,7 +57,7 @@ const dishes = [
     desc: 'عجينة المشلتت اللذيذه من أفخم أنواع الدقيق والزبد البقري',
     descEn: 'Mushaltat dough made from premium flour and cow ghee',
     price: 25,
-    image: '/food-mushaltat.png',
+    image: '/item-m1.png',
     category: 'مشلتت',
     categoryEn: 'Mushaltat',
   },
@@ -68,7 +68,7 @@ const dishes = [
     desc: 'لحم بقري بلدي محلي وسجق وبسطرمة مع جبنة رومي',
     descEn: 'Local beef, sausage & pastirma with romy cheese',
     price: 40,
-    image: '/food-hadik.png',
+    image: '/item-s1.png',
     category: 'حادق',
     categoryEn: 'Savory',
   },
@@ -79,7 +79,7 @@ const dishes = [
     desc: 'عسل طبيعي مع كريمة طازجة وسكر بودرة',
     descEn: 'Natural honey with fresh cream & powdered sugar',
     price: 20,
-    image: '/food-helw.png',
+    image: '/item-sw3.png',
     category: 'حلو',
     categoryEn: 'Sweet',
   },
@@ -90,7 +90,7 @@ const dishes = [
     desc: 'دجاج مشوي مع صوص الرانش والخضار الطازج',
     descEn: 'Grilled chicken with ranch sauce & fresh veggies',
     price: 28,
-    image: '/food-crepe.png',
+    image: '/item-cr2.png',
     category: 'كريب',
     categoryEn: 'Crepe',
   },
@@ -101,7 +101,7 @@ const dishes = [
     desc: 'عجينة رقيقة مع جبنة موزاريلا حقيقية ومواد طازجة',
     descEn: 'Thin dough with real mozzarella & fresh toppings',
     price: 35,
-    image: '/food-pizza-v2.png',
+    image: '/item-pf1.png',
     category: 'بيتزا',
     categoryEn: 'Pizza',
   },
@@ -112,7 +112,7 @@ const dishes = [
     desc: 'لحم بقري مفروم متبل ببهارات شرقية في عجينة مقرمشة',
     descEn: 'Spiced ground beef in crispy dough',
     price: 30,
-    image: '/food-hawawshi.png',
+    image: '/item-hw1.png',
     category: 'حواوشي',
     categoryEn: 'Hawawshi',
   },
@@ -162,12 +162,12 @@ const testimonials = [
 ];
 
 const marqueeItems = [
-  { name: 'فطيرة مشلتت كبير', nameEn: 'Large Mushaltat', price: 35, image: '/food-mushaltat.png' },
-  { name: 'فطيرة مكس لحوم', nameEn: 'Mix Meat Pie', price: 40, image: '/food-hadik.png' },
-  { name: 'فطيرة سجق', nameEn: 'Sausage Pie', price: 32, image: '/food-hadik.png' },
-  { name: 'كريب دجاج رانش', nameEn: 'Chicken Ranch Crepe', price: 28, image: '/food-crepe.png' },
-  { name: 'فطيرة مكس جبن', nameEn: 'Mix Cheese Pie', price: 22, image: '/food-mushaltat.png' },
-  { name: 'فطيرة بسطرمة كيري', nameEn: 'Pastirma Kiri Pie', price: 38, image: '/food-hadik.png' },
+  { name: 'فطيرة مشلتت كبير', nameEn: 'Large Mushaltat', price: 35, image: '/item-m1.png' },
+  { name: 'فطيرة مكس لحوم', nameEn: 'Mix Meat Pie', price: 40, image: '/item-s1.png' },
+  { name: 'فطيرة سجق', nameEn: 'Sausage Pie', price: 32, image: '/item-s5.png' },
+  { name: 'كريب دجاج رانش', nameEn: 'Chicken Ranch Crepe', price: 28, image: '/item-cr2.png' },
+  { name: 'فطيرة مكس جبن', nameEn: 'Mix Cheese Pie', price: 22, image: '/item-s2.png' },
+  { name: 'فطيرة بسطرمة كيري', nameEn: 'Pastirma Kiri Pie', price: 38, image: '/item-s8.png' },
 ];
 
 const features = [
@@ -862,15 +862,15 @@ export default function Home() {
             className="grid grid-cols-3 md:grid-cols-3 gap-2 md:gap-3 max-w-2xl mx-auto"
           >
             {[
-              '/food-mushaltat.png',
-              '/food-hadik.png',
-              '/food-helw.png',
-              '/food-crepe.png',
+              '/item-m1.png',
+              '/item-s1.png',
+              '/item-sw3.png',
+              '/item-cr2.png',
               '/hero-mushaltat.png',
-              '/food-pizza-v2.png',
-              '/food-hawawshi.png',
-              '/food-mushaltat.png',
-              '/food-helw.png',
+              '/item-pf1.png',
+              '/item-hw1.png',
+              '/item-m2.png',
+              '/item-sw1.png',
             ].map((img, i) => (
               <motion.div
                 key={i}
