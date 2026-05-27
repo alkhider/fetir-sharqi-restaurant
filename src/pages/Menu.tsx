@@ -513,117 +513,70 @@ function PDFDownloadButton() {
       const container = document.createElement('div');
       container.id = 'pdf-render-container';
       container.style.cssText =
-        'position:fixed;left:-5000px;top:0;width:1200px;background:#2B2118;font-family:Cairo,Tajawal,sans-serif;direction:rtl;padding:0;z-index:-1;opacity:0.99;';
+        'position:fixed;left:-5000px;top:0;width:1200px;background:#FFFCE8;font-family:Cairo,Tajawal,sans-serif;direction:rtl;padding:40px;z-index:-1;opacity:0.99;';
 
       const fontLink = document.createElement('link');
       fontLink.href =
-        'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap';
+        'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700&display=swap';
       fontLink.rel = 'stylesheet';
       document.head.appendChild(fontLink);
 
       const now = new Date().toLocaleDateString('ar-SA');
-
-      // ─── Header Section ───
       container.innerHTML = `
-        <div style="background:linear-gradient(135deg,#2B2118 0%,#3D2817 50%,#2B2118 100%);padding:50px 60px 40px;text-align:center;border-bottom:4px solid #D4A844;position:relative;overflow:hidden;">
-          <!-- Decorative circles -->
-          <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border:2px solid rgba(212,168,68,0.15);border-radius:50%;"></div>
-          <div style="position:absolute;bottom:-20px;left:-20px;width:80px;height:80px;border:2px solid rgba(212,168,68,0.1);border-radius:50%;"></div>
-          <div style="position:absolute;top:20px;left:40px;width:40px;height:40px;background:rgba(212,168,68,0.08);border-radius:50%;"></div>
-
-          <img src="/logo.png" style="width:100px;height:100px;border-radius:50%;border:3px solid #D4A844;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,0.3);" />
-          <h1 style="font-family:Cairo,sans-serif;font-size:42px;font-weight:900;color:#D4A844;margin:0;letter-spacing:1px;">فطير شرقي</h1>
-          <p style="font-family:Tajawal,sans-serif;font-size:18px;color:#FDF6EC;margin:8px 0 0 0;font-weight:500;">مطعم الفطائر الشرقية الأصيلة</p>
-          <div style="width:80px;height:3px;background:#D4A844;margin:12px auto 0;border-radius:2px;"></div>
-          <p style="font-family:Tajawal,sans-serif;font-size:14px;color:#8C5E3C;margin:12px 0 0 0;">المدينة المنورة — ${now}</p>
+        <div style="text-align:center;margin-bottom:30px;">
+          <img src="/logo.png" style="width:120px;height:auto;margin-bottom:10px;" />
+          <h1 style="font-family:Cairo,sans-serif;font-size:36px;font-weight:800;color:#3D2817;margin:0;">منيو فطير شرقي</h1>
+          <p style="font-family:Tajawal,sans-serif;font-size:16px;color:#8C5E3C;margin:5px 0 0 0;">المدينة المنورة — تاريخ: ${now}</p>
         </div>
-
-        <!-- Gold accent bar -->
-        <div style="height:6px;background:linear-gradient(90deg,#D4A844 0%,#E5B84B 50%,#D4A844 100%);"></div>
       `;
-
-      // ─── Menu Content ───
-      const contentDiv = document.createElement('div');
-      contentDiv.style.cssText = 'background:#FDF6EC;padding:40px 60px 60px;';
-
-      let contentHtml = '';
 
       for (const cat of categories) {
         const items = cat.items;
         if (items.length === 0) continue;
 
-        // Category header with gold styling
-        contentHtml += `
-          <div style="margin-bottom:8px;margin-top:35px;">
-            <table style="width:100%;border-collapse:collapse;">
-              <tr>
-                <td style="width:50%;border-bottom:2px solid #D4A844;"></td>
-                <td style="white-space:nowrap;padding:0 20px;text-align:center;">
-                  <h2 style="font-family:Cairo,sans-serif;font-size:24px;font-weight:800;color:#2B2118;margin:0;">${cat.label}</h2>
-                </td>
-                <td style="width:50%;border-bottom:2px solid #D4A844;"></td>
-              </tr>
-            </table>
-          </div>
-          <div style="margin-bottom:30px;">
-        `;
+        const catDiv = document.createElement('div');
+        catDiv.style.cssText = 'margin-bottom:30px;';
 
-        // Items with elegant dot-leader style
+        let itemsHtml = '';
         for (const item of items) {
-          const sizeInfo = item.priceLarge
-            ? `<span style="color:#8C5E3C;font-size:11px;">(وسط / كبير)</span>`
-            : '';
-          const calInfo = item.calories > 0
-            ? `<span style="color:#8C5E3C;font-size:11px;font-family:Tajawal,sans-serif;">${item.calories} سعرة</span>`
-            : '';
-          const priceDisplay = item.priceLarge
-            ? `<span style="color:#C0392B;font-size:14px;">${item.price}</span> <span style="color:#8C5E3C;font-size:11px;">ر.س</span> <span style="color:#8C5E3C;font-size:11px;">|</span> <span style="color:#D4652A;font-size:14px;">${item.priceLarge}</span> <span style="color:#8C5E3C;font-size:11px;">ر.س</span>`
-            : `<span style="color:#C0392B;font-size:16px;font-weight:700;">${item.price}</span> <span style="color:#8C5E3C;font-size:12px;">ر.س</span>`;
-
-          contentHtml += `
-            <div style="display:flex;align-items:baseline;padding:10px 0;border-bottom:1px dotted #D4A84440;">
-              <div style="flex:1;min-width:0;">
-                <div style="font-family:Cairo,sans-serif;font-size:17px;font-weight:700;color:#2B2118;display:inline;">${item.name}</div>
-                ${sizeInfo ? `<div style="display:inline;margin-right:8px;">${sizeInfo}</div>` : ''}
-                ${calInfo ? `<div style="display:inline;margin-right:8px;">${calInfo}</div>` : ''}
+          itemsHtml += `
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed #D4A84433;">
+              <div style="flex:1;">
+                <div style="font-family:Cairo,sans-serif;font-size:16px;font-weight:700;color:#3D2817;">${item.name}</div>
+                <div style="font-family:Tajawal,sans-serif;font-size:13px;color:#8C5E3C;">${item.calories > 0 ? item.calories + ' سعرة' : ''}</div>
               </div>
-              <div style="flex-shrink:0;margin-right:12px;white-space:nowrap;text-align:left;min-width:80px;">
-                ${priceDisplay}
+              <div style="font-family:Cairo,sans-serif;font-size:18px;font-weight:700;color:#C0392B;white-space:nowrap;">
+                ${item.price} ر.س
               </div>
             </div>
           `;
         }
 
-        contentHtml += `</div>`;
+        catDiv.innerHTML = `
+          <h2 style="font-family:Cairo,sans-serif;font-size:22px;font-weight:700;color:#D4A844;border-bottom:3px solid #D4A844;padding-bottom:8px;margin-bottom:15px;margin-top:25px;">${cat.label}</h2>
+          ${itemsHtml}
+        `;
+        container.appendChild(catDiv);
       }
 
-      contentDiv.innerHTML = contentHtml;
-      container.appendChild(contentDiv);
-
-      // ─── Footer ───
-      const footerDiv = document.createElement('div');
-      footerDiv.style.cssText = 'background:#2B2118;padding:40px 60px;text-align:center;border-top:4px solid #D4A844;';
-      footerDiv.innerHTML = `
-        <img src="/logo.png" style="width:60px;height:60px;border-radius:50%;border:2px solid #D4A844;margin-bottom:12px;opacity:0.8;" />
-        <h3 style="font-family:Cairo,sans-serif;font-size:22px;font-weight:800;color:#D4A844;margin:0;">فطير شرقي</h3>
-        <p style="font-family:Tajawal,sans-serif;font-size:14px;color:#8C5E3C;margin:8px 0 0 0;">للطلب والاستفسار: 055-678-7630</p>
-        <p style="font-family:Tajawal,sans-serif;font-size:13px;color:#8C5E3C;margin:4px 0 0 0;">طريق الأمير محمد بن سلمان — حي الخالدية — المدينة المنورة</p>
-        <p style="font-family:Tajawal,sans-serif;font-size:13px;color:#D4A844;margin:8px 0 0 0;opacity:0.7;">fetirsharqi.sa</p>
-        <div style="margin-top:15px;" id="pdf-qrcode"></div>
-        <p style="font-family:Tajawal,sans-serif;font-size:11px;color:#8C5E3C;margin:10px 0 0 0;opacity:0.5;">امسح الكود لزيارة الموقع</p>
+      const footer = document.createElement('div');
+      footer.style.cssText = 'text-align:center;margin-top:40px;padding-top:20px;border-top:2px solid #D4A844;';
+      footer.innerHTML = `
+        <p style="font-family:Tajawal,sans-serif;font-size:14px;color:#8C5E3C;">للطلب والاستفسار: 055-678-7630 | واتساب متاح</p>
+        <p style="font-family:Tajawal,sans-serif;font-size:14px;color:#8C5E3C;">طريق الأمير محمد بن سلمان — حي الخالدية — المدينة المنورة</p>
+        <div id="pdf-qrcode" style="margin-top:15px;width:100px;height:100px;"></div>
       `;
-      container.appendChild(footerDiv);
+      container.appendChild(footer);
 
       document.body.appendChild(container);
 
       await document.fonts.ready;
-      await new Promise((r) => setTimeout(r, 800));
+      await new Promise((r) => setTimeout(r, 600));
 
-      // Generate QR code
       const qrUrl = window.location.href.replace('/menu', '');
       let qrDataUrl = '';
       try {
-        qrDataUrl = await toDataURL(qrUrl, { width: 90, margin: 2, color: { dark: '#D4A844', light: '#2B2118' } });
+        qrDataUrl = await toDataURL(qrUrl, { width: 100, margin: 2, color: { dark: '#3D2817', light: '#FFFCE8' } });
       } catch (e) {
         console.log('QR skipped');
       }
@@ -631,16 +584,15 @@ function PDFDownloadButton() {
       if (qrDataUrl) {
         const qrDiv = container.querySelector('#pdf-qrcode') as HTMLElement;
         if (qrDiv) {
-          qrDiv.innerHTML = `<img src="${qrDataUrl}" style="width:90px;height:90px;border-radius:8px;background:#FDF6EC;padding:4px;" />`;
+          qrDiv.innerHTML = `<img src="${qrDataUrl}" style="width:100px;height:100px;" />`;
         }
       }
 
-      // ─── Render to Canvas ───
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: '#2B2118',
+        backgroundColor: '#FFFCE8',
         logging: false,
         onclone: (doc: Document) => {
           const c = doc.getElementById('pdf-render-container');
@@ -653,11 +605,10 @@ function PDFDownloadButton() {
         },
       });
 
-      // ─── Generate PDF ───
       const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 8;
+      const margin = 10;
       const contentWidth = pageWidth - margin * 2;
 
       const imgWidth = canvas.width;
@@ -668,8 +619,6 @@ function PDFDownloadButton() {
       let position = 0;
       let remaining = scaledHeight;
       const contentHeight = pageHeight - margin * 2;
-      let pageNum = 1;
-      const totalPages = Math.ceil(scaledHeight / contentHeight);
 
       while (remaining > 0) {
         const sliceHeight = Math.min(remaining, contentHeight);
@@ -689,16 +638,8 @@ function PDFDownloadButton() {
         if (position > 0) pdf.addPage();
         pdf.addImage(sliceData, 'JPEG', margin, margin, contentWidth, sliceHeight);
 
-        // Page number
-        if (totalPages > 1) {
-          pdf.setFontSize(8);
-          pdf.setTextColor(140, 94, 60);
-          pdf.text(`${pageNum} / ${totalPages}`, pageWidth / 2, pageHeight - 5, { align: 'center' });
-        }
-
         remaining -= sliceHeight;
         position += sliceHeight;
-        pageNum++;
       }
 
       pdf.save('fetir-sharqi-menu.pdf');
@@ -1022,4 +963,3 @@ export default function Menu() {
     </div>
   );
 }
-
