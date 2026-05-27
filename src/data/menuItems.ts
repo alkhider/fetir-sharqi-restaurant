@@ -453,15 +453,15 @@ const potatoItems: MenuItem[] = [
 
 // ─── إضافات (9 items) ───
 const extrasItems: MenuItem[] = [
-  { id: "e1", name: "موزريلا", description: "إضافة جبن موزريلا إضافية", price: 8, calories: 150, category: "extras", image: "/food-extras.png" },
-  { id: "e2", name: "دجاج", description: "إضافة دجاج", price: 8, calories: 110, category: "extras", image: "/food-extras.png" },
-  { id: "e3", name: "سجق", description: "إضافة سجق", price: 7, calories: 140, category: "extras", image: "/food-extras.png" },
-  { id: "e4", name: "بسطرمة", description: "إضافة بسطرمة", price: 10, calories: 130, category: "extras", image: "/food-extras.png" },
-  { id: "e5", name: "سوسيس", description: "إضافة سوسيس", price: 7, calories: 120, category: "extras", image: "/food-extras.png" },
-  { id: "e6", name: "مخلل", description: "إضافة مخلل", price: 2, calories: 50, category: "extras", image: "/food-extras.png" },
-  { id: "e7", name: "رانش", description: "صوص رانش إضافي", price: 2, calories: 40, category: "extras", image: "/food-extras.png" },
-  { id: "e8", name: "باربكيو", description: "صوص باربكيو إضافي", price: 2, calories: 60, category: "extras", image: "/food-extras.png" },
-  { id: "e9", name: "هالبينو", description: "فلفل هالبينو إضافي", price: 2, calories: 40, category: "extras", image: "/food-extras.png" },
+  { id: "e1", name: "موزريلا", description: "إضافة جبن موزريلا إضافية", price: 8, calories: 150, category: "extras", image: "/extra-mozzarella.png" },
+  { id: "e2", name: "دجاج", description: "إضافة دجاج", price: 8, calories: 110, category: "extras", image: "/extra-chicken.png" },
+  { id: "e3", name: "سجق", description: "إضافة سجق", price: 7, calories: 140, category: "extras", image: "/extra-sujuk.png" },
+  { id: "e4", name: "بسطرمة", description: "إضافة بسطرمة", price: 10, calories: 130, category: "extras", image: "/extra-pastrami.png" },
+  { id: "e5", name: "سوسيس", description: "إضافة سوسيس", price: 7, calories: 120, category: "extras", image: "/extra-kofta.png" },
+  { id: "e6", name: "مخلل", description: "إضافة مخلل", price: 2, calories: 50, category: "extras", image: "/extra-pickles.png" },
+  { id: "e7", name: "رانش", description: "صوص رانش إضافي", price: 2, calories: 40, category: "extras", image: "/extra-ranch.png" },
+  { id: "e8", name: "باربكيو", description: "صوص باربكيو إضافي", price: 2, calories: 60, category: "extras", image: "/extra-bbq.png" },
+  { id: "e9", name: "هالبينو", description: "فلفل هالبينو إضافي", price: 2, calories: 40, category: "extras", image: "/extra-jalapeno.png" },
 ];
 
 // ─── مشروبات (4 items) ───
