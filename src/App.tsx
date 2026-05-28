@@ -13,6 +13,7 @@ const Reviews = lazy(() => import('./pages/Reviews'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Operations = lazy(() => import('./pages/Operations'))
 const DataProcessor = lazy(() => import('./pages/DataProcessor'))
+const ImageManager = lazy(() => import('./pages/ImageManager'))
 
 function PageLoader() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/operations" element={<Operations />} />
             <Route path="/data-processor" element={<DataProcessor />} />
+            <Route path="/image-manager" element={<ImageManager />} />
           </Routes>
         </Suspense>
       </BasketProvider>
