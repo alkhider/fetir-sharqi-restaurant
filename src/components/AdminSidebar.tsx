@@ -7,7 +7,6 @@ import {
   ClipboardList,
   Users,
   FileUp,
-  Image,
   Settings,
   LogOut,
 } from 'lucide-react';
@@ -33,7 +32,6 @@ const navGroups = [
       { label: 'الطلبات', href: '/operations', icon: ClipboardList },
       { label: 'إدارة العملاء', href: '/dashboard', icon: Users },
       { label: 'رفع الفواتير', href: '/data-processor', icon: FileUp },
-      { label: 'إدارة الصور', href: '/image-manager', icon: Image },
     ],
   },
 ];
