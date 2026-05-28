@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { cn } from '@/lib/utils';
+import { generateMockOrders } from '@/data/mockOrders';
 
 // ─── Types ───────────────────────────────────────────────────────
 type OrderStatus = 'جديد' | 'قيد التحضير' | 'جاهز' | 'تم التوصيل' | 'ملغي';
@@ -59,30 +60,79 @@ const statusConfig: Record<OrderStatus, { color: string; bg: string; border: str
 const statusFlow: OrderStatus[] = ['جديد', 'قيد التحضير', 'جاهز', 'تم التوصيل'];
 
 // ─── Mock Data ───────────────────────────────────────────────────
-const mockOrders: Order[] = [
-  { id: '#ORD-15670', date: '2026-05-18', time: '12:30', customer: 'محمد سامي', phone: '0551234567', type: 'سفري', items: [{ name: 'فطيرة مشلتت', size: 'كبير', quantity: 2, price: 70, notes: 'بدون بصل' }, { name: 'كريب دجاج رانش', quantity: 1, price: 28 }], amount: 98, status: 'جديد', payment: 'نقدي', address: 'حي الإسكان، شارع الأمير محمد بن عبدالعزيز', timeline: [{ status: 'جديد', time: '12:30' }] },
-  { id: '#ORD-15671', date: '2026-05-18', time: '12:35', customer: 'HungerStation', phone: '920033608', type: 'هنجر ستيشن', items: [{ name: 'فطيرة هاديك', size: 'وسط', quantity: 1, price: 45 }, { name: 'فطيرة حلو بالعسل', quantity: 1, price: 22 }], amount: 67, status: 'قيد التحضير', payment: 'فيزا', timeline: [{ status: 'جديد', time: '12:35' }, { status: 'قيد التحضير', time: '12:40' }] },
-  { id: '#ORD-15672', date: '2026-05-18', time: '12:40', customer: 'أحمد العلي', phone: '0552345678', type: 'محلي', items: [{ name: 'فطيرة بيتزا', size: 'كبير', quantity: 1, price: 50 }, { name: 'صودا', quantity: 2, price: 10 }], amount: 60, status: 'جديد', payment: 'شبكة', timeline: [{ status: 'جديد', time: '12:40' }] },
-  { id: '#ORD-15673', date: '2026-05-18', time: '12:45', customer: 'Kita', phone: '8001240022', type: 'كيتا', items: [{ name: 'فطيرة حواوشي', size: 'كبير', quantity: 3, price: 120 }], amount: 120, status: 'جاهز', payment: 'مدى', timeline: [{ status: 'جديد', time: '12:45' }, { status: 'قيد التحضير', time: '12:50' }, { status: 'جاهز', time: '13:05' }] },
-  { id: '#ORD-15674', date: '2026-05-18', time: '12:50', customer: 'فاطمة الزهراء', phone: '0553456789', type: 'سفري', items: [{ name: 'فطيرة مشلتت', size: 'وسط', quantity: 1, price: 35 }], amount: 35, status: 'تم التوصيل', payment: 'نقدي', timeline: [{ status: 'جديد', time: '12:50' }, { status: 'قيد التحضير', time: '12:55' }, { status: 'جاهز', time: '13:00' }, { status: 'تم التوصيل', time: '13:15' }] },
-  { id: '#ORD-15675', date: '2026-05-18', time: '13:00', customer: 'عبدالرحمن خالد', phone: '0554567890', type: 'محلي', items: [{ name: 'فطيرة هاديك', size: 'كبير', quantity: 2, price: 90 }, { name: 'سلطة', quantity: 1, price: 15 }], amount: 105, status: 'قيد التحضير', payment: 'شبكة', timeline: [{ status: 'جديد', time: '13:00' }, { status: 'قيد التحضير', time: '13:05' }] },
-  { id: '#ORD-15676', date: '2026-05-18', time: '13:05', customer: 'HungerStation', phone: '920033608', type: 'هنجر ستيشن', items: [{ name: 'كريب دجاج رانش', quantity: 2, price: 56 }], amount: 56, status: 'جديد', payment: 'فيزا', timeline: [{ status: 'جديد', time: '13:05' }] },
-  { id: '#ORD-15677', date: '2026-05-18', time: '13:10', customer: 'نورة سعد', phone: '0555678901', type: 'سفري', items: [{ name: 'فطيرة حلو بالعسل', quantity: 2, price: 44 }, { name: 'آيس كريم', quantity: 2, price: 20 }], amount: 64, status: 'تم التوصيل', payment: 'نقدي', timeline: [{ status: 'جديد', time: '13:10' }, { status: 'قيد التحضير', time: '13:15' }, { status: 'جاهز', time: '13:20' }, { status: 'تم التوصيل', time: '13:30' }] },
-  { id: '#ORD-15678', date: '2026-05-18', time: '13:15', customer: 'Kita', phone: '8001240022', type: 'كيتا', items: [{ name: 'فطيرة بيتزا', size: 'وسط', quantity: 2, price: 80 }], amount: 80, status: 'قيد التحضير', payment: 'مدى', timeline: [{ status: 'جديد', time: '13:15' }, { status: 'قيد التحضير', time: '13:20' }] },
-  { id: '#ORD-15679', date: '2026-05-18', time: '13:20', customer: 'سلطان محمد', phone: '0556789012', type: 'محلي', items: [{ name: 'فطيرة مشلتت', size: 'كبير', quantity: 1, price: 40 }, { name: 'فطيرة حواوشي', size: 'وسط', quantity: 1, price: 35 }], amount: 75, status: 'جديد', payment: 'نقدي', timeline: [{ status: 'جديد', time: '13:20' }] },
-  { id: '#ORD-15680', date: '2026-05-18', time: '13:25', customer: 'HungerStation', phone: '920033608', type: 'هنجر ستيشن', items: [{ name: 'فطيرة هاديك', size: 'كبير', quantity: 1, price: 50 }, { name: 'كريب دجاج رانش', quantity: 1, price: 28 }, { name: 'عصير برتقال', quantity: 1, price: 12 }], amount: 90, status: 'جاهز', payment: 'فيزا', timeline: [{ status: 'جديد', time: '13:25' }, { status: 'قيد التحضير', time: '13:30' }, { status: 'جاهز', time: '13:45' }] },
-  { id: '#ORD-15681', date: '2026-05-18', time: '13:30', customer: 'لمى عبدالله', phone: '0557890123', type: 'سفري', items: [{ name: 'فطيرة حلو بالعسل', quantity: 1, price: 22 }], amount: 22, status: 'ملغي', payment: 'نقدي', timeline: [{ status: 'جديد', time: '13:30' }, { status: 'ملغي', time: '13:35' }] },
-  { id: '#ORD-15682', date: '2026-05-18', time: '13:35', customer: 'يوسف أحمد', phone: '0558901234', type: 'محلي', items: [{ name: 'فطيرة مشلتت', size: 'كبير', quantity: 2, price: 80 }, { name: 'فطيرة بيتزا', size: 'كبير', quantity: 1, price: 50 }, { name: 'بيبسي', quantity: 3, price: 15 }], amount: 145, status: 'قيد التحضير', payment: 'شبكة', timeline: [{ status: 'جديد', time: '13:35' }, { status: 'قيد التحضير', time: '13:40' }] },
-  { id: '#ORD-15683', date: '2026-05-18', time: '13:40', customer: 'Kita', phone: '8001240022', type: 'كيتا', items: [{ name: 'فطيرة حواوشي', size: 'كبير', quantity: 2, price: 80 }], amount: 80, status: 'جديد', payment: 'مدى', timeline: [{ status: 'جديد', time: '13:40' }] },
-  { id: '#ORD-15684', date: '2026-05-18', time: '13:45', customer: 'HungerStation', phone: '920033608', type: 'هنجر ستيشن', items: [{ name: 'فطيرة حلو بالعسل', quantity: 3, price: 66 }], amount: 66, status: 'تم التوصيل', payment: 'فيزا', timeline: [{ status: 'جديد', time: '13:45' }, { status: 'قيد التحضير', time: '13:50' }, { status: 'جاهز', time: '13:55' }, { status: 'تم التوصيل', time: '14:05' }] },
-  { id: '#ORD-15685', date: '2026-05-18', time: '13:50', customer: 'ريم سالم', phone: '0559012345', type: 'سفري', items: [{ name: 'فطيرة مشلتت', size: 'وسط', quantity: 1, price: 35 }, { name: 'كريب دجاج رانش', quantity: 1, price: 28 }], amount: 63, status: 'قيد التحضير', payment: 'نقدي', timeline: [{ status: 'جديد', time: '13:50' }, { status: 'قيد التحضير', time: '13:55' }] },
-  { id: '#ORD-15686', date: '2026-05-18', time: '13:55', customer: 'خالد عمر', phone: '0550123456', type: 'محلي', items: [{ name: 'فطيرة هاديك', size: 'كبير', quantity: 1, price: 50 }], amount: 50, status: 'جديد', payment: 'شبكة', timeline: [{ status: 'جديد', time: '13:55' }] },
-  { id: '#ORD-15687', date: '2026-05-18', time: '14:00', customer: 'HungerStation', phone: '920033608', type: 'هنجر ستيشن', items: [{ name: 'فطيرة بيتزا', size: 'كبير', quantity: 2, price: 100 }], amount: 100, status: 'قيد التحضير', payment: 'فيزا', timeline: [{ status: 'جديد', time: '14:00' }, { status: 'قيد التحضير', time: '14:05' }] },
-  { id: '#ORD-15688', date: '2026-05-18', time: '14:05', customer: 'نوف عبدالعزيز', phone: '0551123456', type: 'سفري', items: [{ name: 'فطيرة حلو بالعسل', quantity: 1, price: 22 }, { name: 'آيس كريم', quantity: 1, price: 10 }], amount: 32, status: 'جاهز', payment: 'نقدي', timeline: [{ status: 'جديد', time: '14:05' }, { status: 'قيد التحضير', time: '14:10' }, { status: 'جاهز', time: '14:20' }] },
-  { id: '#ORD-15689', date: '2026-05-18', time: '14:10', customer: 'عبدالله فهد', phone: '0552234567', type: 'محلي', items: [{ name: 'فطيرة مشلتت', size: 'كبير', quantity: 1, price: 40 }, { name: 'فطيرة حواوشي', size: 'كبير', quantity: 1, price: 45 }], amount: 85, status: 'تم التوصيل', payment: 'نقدي', timeline: [{ status: 'جديد', time: '14:10' }, { status: 'قيد التحضير', time: '14:15' }, { status: 'جاهز', time: '14:20' }, { status: 'تم التوصيل', time: '14:30' }] },
-  { id: '#ORD-15690', date: '2026-05-18', time: '14:15', customer: 'Kita', phone: '8001240022', type: 'كيتا', items: [{ name: 'فطيرة هاديك', size: 'وسط', quantity: 2, price: 70 }], amount: 70, status: 'جديد', payment: 'مدى', timeline: [{ status: 'جديد', time: '14:15' }] },
-  { id: '#ORD-15691', date: '2026-05-18', time: '14:20', customer: 'سارة محمود', phone: '0553345678', type: 'سفري', items: [{ name: 'كريب دجاج رانش', quantity: 2, price: 56 }, { name: 'سلطة', quantity: 1, price: 15 }], amount: 71, status: 'ملغي', payment: 'شبكة', timeline: [{ status: 'جديد', time: '14:20' }, { status: 'ملغي', time: '14:22' }] },
-];
+// Real customer names from Google Maps reviews + real menu items
+const mockOrders: Order[] = (() => {
+  const generated = generateMockOrders();
+  const statusMap: Record<string, OrderStatus> = {
+    pending: 'جديد',
+    preparing: 'قيد التحضير',
+    ready: 'جاهز',
+    completed: 'تم التوصيل',
+    cancelled: 'ملغي',
+  };
+  const typeMap: Record<string, OrderType> = {
+    'سفري': 'سفري',
+    'محلي': 'محلي',
+    'كيتا': 'كيتا',
+    'هنجر ستيشن': 'هنجر ستيشن',
+  };
+  const paymentMap: Record<string, PaymentMethod> = {
+    'نقدي': 'نقدي',
+    'شبكة': 'شبكة',
+    'مدى': 'مدى',
+    'فيزا': 'فيزا',
+  };
+
+  return generated.map((order, idx) => {
+    const status = statusMap[order.status] || 'جديد';
+    // Build a realistic timeline based on status
+    const timeline: { status: OrderStatus; time: string }[] = [];
+    const baseTime = order.time;
+    if (status === 'جديد' || status === 'قيد التحضير' || status === 'جاهز' || status === 'تم التوصيل') {
+      timeline.push({ status: 'جديد', time: baseTime });
+    }
+    if (status === 'قيد التحضير' || status === 'جاهز' || status === 'تم التوصيل') {
+      timeline.push({ status: 'قيد التحضير', time: addMinutes(baseTime, 5) });
+    }
+    if (status === 'جاهز' || status === 'تم التوصيل') {
+      timeline.push({ status: 'جاهز', time: addMinutes(baseTime, 15) });
+    }
+    if (status === 'تم التوصيل') {
+      timeline.push({ status: 'تم التوصيل', time: addMinutes(baseTime, 30) });
+    }
+    if (status === 'ملغي') {
+      timeline.push({ status: 'جديد', time: baseTime });
+      timeline.push({ status: 'ملغي', time: addMinutes(baseTime, 5) });
+    }
+
+    return {
+      id: order.id,
+      date: order.date,
+      time: order.time,
+      customer: order.customer,
+      phone: order.phone,
+      type: typeMap[order.type] || 'سفري',
+      items: order.items.map(item => ({
+        name: item.name,
+        size: item.size || undefined,
+        quantity: item.qty,
+        price: item.price * item.qty,
+        notes: idx === 0 ? 'بدون بصل' : undefined,
+      })),
+      amount: order.amount,
+      status,
+      payment: paymentMap[order.payment] || 'نقدي',
+      timeline,
+    };
+  });
+})();
+
+function addMinutes(timeStr: string, mins: number): string {
+  const [h, m] = timeStr.split(':').map(Number);
+  const d = new Date();
+  d.setHours(h, m + mins);
+  return d.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
 
 // ─── Status Badge ────────────────────────────────────────────────
 function StatusBadge({ status }: { status: OrderStatus }) {
