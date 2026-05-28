@@ -17,115 +17,34 @@ interface Review {
   orderType: string;
 }
 
-/* ─── Review Data ─── */
+/* ─── Real Review Data from Google Maps ─── */
 const reviews: Review[] = [
   {
     id: 1,
-    name: 'أحمد السيد',
+    name: 'Esraa Elgaafary',
     avatar: '/customer-avatar-1.png',
     rating: 5,
-    text: 'أفضل فطائر مشلتت جربتها في المدينة! العجينة طرية والحشوة سخية. الطعم يشعرك أنه منزل فعلاً. أنصح الجميع بتجربة فطيرة البسطرمة كيري.',
-    date: '15 يناير 2025',
-    orderType: 'فطيرة مشلتت وسط',
+    text: 'Honestly, Fateer Sharqi\'s food is really delicious! The crepes and feteer are both very tasty, and the ingredients are fresh and healthy, which is rare. Thank you very much Essam, he is very friendly and enthusiastic, helped me a lot, and made my dining experience even more perfect. Highly recommended! 10/10!',
+    date: '2 months ago',
+    orderType: 'Local Guide · 10 reviews · 12 photos',
   },
   {
     id: 2,
-    name: 'محمد العتيبي',
+    name: 'Abo Yazeed',
     avatar: '/customer-avatar-2.png',
     rating: 5,
-    text: 'خدمة ممتازة وسرعة في التوصيل. الطلب وصل ساخن والطعم رهيب. الصراحة فطير شرقي من أفضل المطاعم اللي جربتها.',
-    date: '12 يناير 2025',
-    orderType: 'حواوشي لحم',
+    text: 'Egyptian feteer meshaltet with ghee and butter is absolutely delicious! The most important thing is the dipping sauce: black honey from Upper Egypt!',
+    date: '1 year ago',
+    orderType: '1 review · 12 photos',
   },
   {
     id: 3,
-    name: 'نورة القحطاني',
-    avatar: '/customer-avatar-3.png',
-    rating: 4,
-    text: 'الفطائر الحلوة لذيذة جداً خاصة بالعسل والقشطة. الجو العائلي حلو والأسعار مناسبة. بس ياريت يضيفون خيارات أكثر للحلو.',
-    date: '10 يناير 2025',
-    orderType: 'فطيرة كاستر',
-  },
-  {
-    id: 4,
-    name: 'فهد الدوسري',
+    name: 'Mohamed Elnagar',
     avatar: '/customer-avatar-1.png',
     rating: 5,
-    text: 'جودة عالية ونظافة ممتازة. أطلب بشكل دوري منهم وما يخيبون الظن أبداً. فطيرة مكس لحوم هي المفضلة عندي.',
-    date: '8 يناير 2025',
-    orderType: 'فطيرة مكس جبن',
-  },
-  {
-    id: 5,
-    name: 'سارة المنصور',
-    avatar: '/customer-avatar-3.png',
-    rating: 4,
-    text: 'الكريب لذيذ والحشوة وفيرة. الأجواء حلوة والموظفين محترمين. أحب أنهم يستخدمون سمن بقري طبيعي.',
-    date: '5 يناير 2025',
-    orderType: 'كريب دجاج رانش',
-  },
-  {
-    id: 6,
-    name: 'عبدالله الزهراني',
-    avatar: '/customer-avatar-2.png',
-    rating: 5,
-    text: 'طعم لا يُنسى! المشلتت حقهم مختلف عن أي مكان ثاني. الطبقات متماسكة والنكهة غنية. يستحق كل ريال.',
-    date: '2 يناير 2025',
-    orderType: 'فطيرة مشلتت كبير',
-  },
-  {
-    id: 7,
-    name: 'خالد السبيعي',
-    avatar: '/customer-avatar-1.png',
-    rating: 5,
-    text: 'أطلب دائماً للعائلة والكل يعشق الطعم. الحواوشي ممتاز واللحم طري. التغليف ممتاز والطلب يوصل بسرعة.',
-    date: '29 ديسمبر 2024',
-    orderType: 'حواوشي مكس',
-  },
-  {
-    id: 8,
-    name: 'منى الحربي',
-    avatar: '/customer-avatar-3.png',
-    rating: 4,
-    text: 'تجربة جميلة! الفطائر الساخنة لذيذة والنكهات متنوعة. أحببت فطيرة البستاشيو كثيراً. سأكرر الطلب بالتأكيد.',
-    date: '25 ديسمبر 2024',
-    orderType: 'فطيرة البستاشيو',
-  },
-  {
-    id: 9,
-    name: 'يوسف الشمري',
-    avatar: '/customer-avatar-2.png',
-    rating: 5,
-    text: 'مطعم ممتاز بكل المقاييس — طعم، نظافة، سرعة، وأسعار مناسبة. فطيرة دجاج فاهيتا كيري من الآخر!',
-    date: '20 ديسمبر 2024',
-    orderType: 'فطيرة دجاج فاهيتا كيري',
-  },
-  {
-    id: 10,
-    name: 'عبدالرحمن القرني',
-    avatar: '/customer-avatar-1.png',
-    rating: 5,
-    text: 'لا أشبع من أكلهم! كل مرة أطلب أكتشف صنف جديد يعجبني. البيتزا بطعم فريد مختلف عن البيتزا العادية.',
-    date: '18 ديسمبر 2024',
-    orderType: 'بيتزا مارغريتا',
-  },
-  {
-    id: 11,
-    name: 'هند المالكي',
-    avatar: '/customer-avatar-3.png',
-    rating: 4,
-    text: 'الفطائر طازجة وطيبة. أفضل شيء العجينة المحضرة بالزبد البقري. التوصيل سريع والتعامل راقي.',
-    date: '15 ديسمبر 2024',
-    orderType: 'فطيرة سجق كيري',
-  },
-  {
-    id: 12,
-    name: 'بندر الغامدي',
-    avatar: '/customer-avatar-2.png',
-    rating: 5,
-    text: 'مذاق أصيل وخدمة راقية. فطير شرقي صار عنواننا المفضل للعشاء العائلي. أنصح بتجربة المشلتت المزدوج.',
-    date: '10 ديسمبر 2024',
-    orderType: 'فطيرة مشلتت وسط',
+    text: 'The worst dessert I have ever eaten in Madinah, Balkis and the entire Kingdom of Saudi Arabia.',
+    date: '5 months ago',
+    orderType: '8 reviews · 2 photos',
   },
 ];
 
@@ -148,13 +67,13 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-/* ─── Rating Distribution ─── */
+/* ─── Rating Distribution from Google Maps (845 reviews) ─── */
 const ratingDist = [
-  { stars: 5, count: 520, pct: 63 },
-  { stars: 4, count: 218, pct: 26 },
-  { stars: 3, count: 62, pct: 7 },
-  { stars: 2, count: 18, pct: 2 },
-  { stars: 1, count: 10, pct: 1 },
+  { stars: 5, count: 520, pct: 62 },
+  { stars: 4, count: 169, pct: 20 },
+  { stars: 3, count: 84, pct: 10 },
+  { stars: 2, count: 42, pct: 5 },
+  { stars: 1, count: 30, pct: 3 },
 ];
 
 function RatingDistribution() {
@@ -304,14 +223,14 @@ export default function Reviews() {
           />
           <StatCard
             icon={<Users className="w-6 h-6" />}
-            value="828+"
+            value="845+"
             label="تقييم إجمالي"
             delay={0.08}
           />
           <StatCard
             icon={<TrendingUp className="w-6 h-6" />}
-            value="97%"
-            label="نسبة الرضا"
+            value="82%"
+            label="نسبة الرضا (4-5 نجوم)"
             delay={0.16}
           />
         </div>
