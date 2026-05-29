@@ -7,31 +7,34 @@ import {
   ClipboardList,
   Users,
   FileUp,
+  Utensils,
   Settings,
   LogOut,
 } from 'lucide-react';
+import { logoutAdmin } from '@/components/PasswordGate';
 import { cn } from '@/lib/utils';
 
 const navGroups = [
   {
     items: [
-      { label: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'لوحة التحكم', href: '/admin/dashboard', icon: LayoutDashboard },
     ],
   },
   {
     label: 'التحليلات',
     items: [
-      { label: 'المبيعات', href: '/dashboard', icon: TrendingUp },
-      { label: 'الإعلانات', href: '/dashboard', icon: Megaphone },
-      { label: 'التنبؤات', href: '/dashboard', icon: LineChart },
+      { label: 'المبيعات', href: '/admin/dashboard', icon: TrendingUp },
+      { label: 'الإعلانات', href: '/admin/dashboard', icon: Megaphone },
+      { label: 'التنبؤات', href: '/admin/dashboard', icon: LineChart },
     ],
   },
   {
     label: 'العمليات',
     items: [
-      { label: 'الطلبات', href: '/operations', icon: ClipboardList },
-      { label: 'إدارة العملاء', href: '/dashboard', icon: Users },
-      { label: 'رفع الفواتير', href: '/data-processor', icon: FileUp },
+      { label: 'الطلبات', href: '/admin/operations', icon: ClipboardList },
+      { label: 'إدارة العملاء', href: '/admin/dashboard', icon: Users },
+      { label: 'رفع الفواتير', href: '/admin/data-processor', icon: FileUp },
+      { label: 'إدارة القائمة', href: '/admin/menu-management', icon: Utensils },
     ],
   },
 ];
@@ -111,7 +114,10 @@ export default function AdminSidebar({ activeItem }: AdminSidebarProps) {
             <Settings className="w-[22px] h-[22px] shrink-0" />
             <span>الإعدادات</span>
           </button>
-          <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg font-tajawal text-sm font-semibold text-[#FDF6EC]/70 hover:bg-[#C0392B]/15 hover:text-[#C0392B] transition-all w-full text-right">
+          <button
+            onClick={logoutAdmin}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg font-tajawal text-sm font-semibold text-[#FDF6EC]/70 hover:bg-[#C0392B]/15 hover:text-[#C0392B] transition-all w-full text-right"
+          >
             <LogOut className="w-[22px] h-[22px] shrink-0" />
             <span>تسجيل الخروج</span>
           </button>
