@@ -1,8 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router'
+import { Routes, Route } from 'react-router'
 import { lazy, Suspense } from 'react'
 import { LanguageProvider } from '@/context/LanguageContext'
 import { BasketProvider } from '@/context/BasketContext'
-import PasswordGate from '@/components/PasswordGate'
 import Layout from '@/components/Layout'
 
 const Home = lazy(() => import('./pages/Home'))
@@ -14,7 +13,6 @@ const Reviews = lazy(() => import('./pages/Reviews'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Operations = lazy(() => import('./pages/Operations'))
 const DataProcessor = lazy(() => import('./pages/DataProcessor'))
-const MenuManagement = lazy(() => import('./pages/MenuManagement'))
 
 function PageLoader() {
   return (
@@ -27,22 +25,12 @@ function PageLoader() {
   )
 }
 
-// Admin route wrapper with password gate
-function AdminRoute({ children }: { children: React.ReactNode }) {
-  return (
-    <PasswordGate>
-      {children}
-    </PasswordGate>
-  )
-}
-
 export default function App() {
   return (
     <LanguageProvider>
       <BasketProvider>
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Public Routes */}
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
               <Route path="/menu" element={<Menu />} />
@@ -51,31 +39,9 @@ export default function App() {
               <Route path="/offers" element={<Offers />} />
               <Route path="/reviews" element={<Reviews />} />
             </Route>
-
-            {/* Admin Routes - Protected by Password Gate */}
-            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-            <Route
-              path="/admin/dashboard"
-              element={<AdminRoute><Dashboard /></AdminRoute>}
-            />
-            <Route
-              path="/admin/operations"
-              element={<AdminRoute><Operations /></AdminRoute>}
-            />
-            <Route
-              path="/admin/data-processor"
-              element={<AdminRoute><DataProcessor /></AdminRoute>}
-            />
-            <Route
-              path="/admin/menu-management"
-              element={<AdminRoute><MenuManagement /></AdminRoute>}
-            />
-
-            {/* Legacy redirects for backward compat */}
-            <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="/operations" element={<Navigate to="/admin/operations" replace />} />
-            <Route path="/data-processor" element={<Navigate to="/admin/data-processor" replace />} />
-            <Route path="/menu-management" element={<Navigate to="/admin/menu-management" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/operations" element={<Operations />} />
+            <Route path="/data-processor" element={<DataProcessor />} />
           </Routes>
         </Suspense>
       </BasketProvider>
