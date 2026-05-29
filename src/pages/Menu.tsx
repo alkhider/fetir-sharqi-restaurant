@@ -295,7 +295,7 @@ function BasketDrawer({
                   <AnimatePresence>
                     {items.map((item) => (
                       <motion.div
-                        key={item.id}
+                        key={item.size ? `${item.id}-${item.size}` : item.id}
                         layout
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -312,6 +312,11 @@ function BasketDrawer({
                           <h4 className="font-cairo font-semibold text-crust-dark text-sm truncate">
                             {item.name}
                           </h4>
+                          {item.size && (
+                            <span className="text-[10px] bg-ghee-gold/20 text-ghee-gold px-1.5 py-0.5 rounded-full font-bold">
+                              {item.size === 'medium' ? 'وسط' : 'كبير'}
+                            </span>
+                          )}
                           <p className="text-ghee-gold font-bold text-sm mt-0.5">
                             {item.price * item.quantity}{' '}
                             <span className="text-xs font-normal">ر.س</span>
@@ -319,10 +324,10 @@ function BasketDrawer({
                         </div>
                         <QuantityControl
                           value={item.quantity}
-                          onChange={(q) => updateQuantity(item.id, q)}
+                          onChange={(q) => updateQuantity(item.size ? `${item.id}-${item.size}` : item.id, q)}
                         />
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item.size ? `${item.id}-${item.size}` : item.id)}
                           className="text-warm-brown/50 hover:text-error-red transition-colors p-1"
                         >
                           <X className="w-4 h-4" />
@@ -384,6 +389,7 @@ export default function Menu() {
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sizePickerItem, setSizePickerItem] = useState<MenuItem | null>(null);
   const { items, addItem, updateQuantity } = useBasket();
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -399,12 +405,20 @@ export default function Menu() {
           ) ?? [];
 
   const getItemQuantity = useCallback(
-    (id: string) => items.find((i) => i.id === id)?.quantity ?? 0,
+    (id: string) =>
+      items
+        .filter((i) => i.id === id)
+        .reduce((sum, i) => sum + i.quantity, 0),
     [items]
   );
 
   const handleAdd = useCallback(
     (item: MenuItem) => {
+      if (item.priceLarge) {
+        // Show size picker for items with both sizes
+        setSizePickerItem(item);
+        return;
+      }
       addItem({
         id: item.id,
         name: item.name,
@@ -614,6 +628,110 @@ export default function Menu() {
 
       {/* Basket Drawer */}
       <BasketDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+
+      {/* Size Picker Modal */}
+      <AnimatePresence>
+        {sizePickerItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSizePickerItem(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-surface-cream rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+            >
+              {/* Header */}
+              <div className="relative h-40 overflow-hidden">
+                <img
+                  src={sizePickerItem.image}
+                  alt={sizePickerItem.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <button
+                  onClick={() => setSizePickerItem(null)}
+                  className="absolute top-3 right-3 w-8 h-8 bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-all"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <div className="absolute bottom-3 right-4 left-4">
+                  <h3 className="font-cairo font-bold text-xl text-white">
+                    {sizePickerItem.name}
+                  </h3>
+                  <p className="text-white/70 text-sm truncate">{sizePickerItem.description}</p>
+                </div>
+              </div>
+
+              {/* Size Options */}
+              <div className="p-5 space-y-3">
+                <p className="text-center font-cairo font-bold text-crust-dark text-lg">
+                  اختر الحجم
+                </p>
+
+                {/* Medium */}
+                <button
+                  onClick={() => {
+                    addItem({
+                      id: sizePickerItem.id,
+                      name: `${sizePickerItem.name} (وسط)`,
+                      price: sizePickerItem.price,
+                      image: sizePickerItem.image,
+                      size: 'medium',
+                    });
+                    setSizePickerItem(null);
+                    setDrawerOpen(true);
+                  }}
+                  className="w-full flex items-center justify-between p-4 rounded-xl bg-dough-cream border-2 border-transparent hover:border-ghee-gold transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-ghee-gold/20 flex items-center justify-center">
+                      <span className="font-bold text-ghee-gold text-sm">M</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-crust-dark group-hover:text-ghee-gold transition-colors">وسط</p>
+                      <p className="text-xs text-warm-brown">{sizePickerItem.calories} سعرة</p>
+                    </div>
+                  </div>
+                  <span className="font-cairo font-bold text-xl text-ghee-gold">{sizePickerItem.price} ر.س</span>
+                </button>
+
+                {/* Large */}
+                <button
+                  onClick={() => {
+                    addItem({
+                      id: sizePickerItem.id,
+                      name: `${sizePickerItem.name} (كبير)`,
+                      price: sizePickerItem.priceLarge!,
+                      image: sizePickerItem.image,
+                      size: 'large',
+                    });
+                    setSizePickerItem(null);
+                    setDrawerOpen(true);
+                  }}
+                  className="w-full flex items-center justify-between p-4 rounded-xl bg-dough-cream border-2 border-transparent hover:border-ghee-gold transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-ember-orange/20 flex items-center justify-center">
+                      <span className="font-bold text-ember-orange text-sm">L</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-crust-dark group-hover:text-ghee-gold transition-colors">كبير</p>
+                      <p className="text-xs text-warm-brown">{sizePickerItem.caloriesLarge} سعرة</p>
+                    </div>
+                  </div>
+                  <span className="font-cairo font-bold text-xl text-ghee-gold">{sizePickerItem.priceLarge} ر.س</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Floating basket button (mobile) */}
       <AnimatePresence>

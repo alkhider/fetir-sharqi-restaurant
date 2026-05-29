@@ -8,6 +8,7 @@ export interface BasketItem {
   quantity: number;
   image: string;
   notes?: string;
+  size?: 'medium' | 'large';
 }
 
 interface BasketContextType {
@@ -46,29 +47,43 @@ export function BasketProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback((newItem: Omit<BasketItem, 'quantity'>) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.id === newItem.id);
+      // Use composite key for size variants: "id-medium" or "id-large"
+      const compositeId = newItem.size ? `${newItem.id}-${newItem.size}` : newItem.id;
+      const existing = prev.find((item) =>
+        item.size ? `${item.id}-${item.size}` === compositeId : item.id === compositeId
+      );
       if (existing) {
-        return prev.map((item) =>
-          item.id === newItem.id
+        return prev.map((item) => {
+          const itemCompositeId = item.size ? `${item.id}-${item.size}` : item.id;
+          return itemCompositeId === compositeId
             ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+            : item;
+        });
       }
       return [...prev, { ...newItem, quantity: 1 }];
     });
   }, []);
 
-  const removeItem = useCallback((id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  const removeItem = useCallback((compositeId: string) => {
+    setItems((prev) => prev.filter((item) => {
+      const itemCompositeId = item.size ? `${item.id}-${item.size}` : item.id;
+      return itemCompositeId !== compositeId;
+    }));
   }, []);
 
-  const updateQuantity = useCallback((id: string, quantity: number) => {
+  const updateQuantity = useCallback((compositeId: string, quantity: number) => {
     if (quantity <= 0) {
-      setItems((prev) => prev.filter((item) => item.id !== id));
+      setItems((prev) => prev.filter((item) => {
+        const itemCompositeId = item.size ? `${item.id}-${item.size}` : item.id;
+        return itemCompositeId !== compositeId;
+      }));
       return;
     }
     setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+      prev.map((item) => {
+        const itemCompositeId = item.size ? `${item.id}-${item.size}` : item.id;
+        return itemCompositeId === compositeId ? { ...item, quantity } : item;
+      })
     );
   }, []);
 
